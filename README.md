@@ -1,6 +1,6 @@
 # toma1
 
-- **Logs.py** :
+- **Logs** :
 Cada acción que altere el estado del sistema (altas, modificaciones,
 eliminaciones, inicios de sesión fallidos, intentos de acceso no autorizado,
 cambios en configuraciones críticas) deberá registrarse en una bitácora de
