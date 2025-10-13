@@ -18,18 +18,11 @@
         const resp = await fetch(`${API}/peliculas`);
         const data = await resp.json();
         const lista = document.getElementById("peliculas");
-        const select = document.getElementById("escuderia-id");
         lista.innerHTML = "";
-        select.innerHTML = "";
         data.forEach(e => {
             const li = document.createElement("li");
             li.textContent = `${e.nombre} (${e.pais}) - Campeonatos: ${e.campeonatos}`;
             lista.appendChild(li);
-
-            const opt = document.createElement("option");
-            opt.value = e.id;
-            opt.textContent = e.nombre;
-            select.appendChild(opt);
         });
     }
 

@@ -1,0 +1,14 @@
+.navbar {
+    opacity: 0.7;
+    transition: opacity 0.5s ease-in-out;
+    background: linear-gradient(to top, transparent, #092e61);
+    .navbar-brand,
+    .form-control,
+    .btn {
+        opacity: 1;
+    }
+}
+
+.navbar:hover {
+    opacity: 1;
+}
