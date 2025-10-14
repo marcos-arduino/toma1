@@ -21,24 +21,9 @@
         lista.innerHTML = "";
         data.forEach(e => {
             const li = document.createElement("li");
-            li.textContent = `${e.nombre} (${e.pais}) - Campeonatos: ${e.campeonatos}`;
+            li.textContent = `${e}`;
             lista.appendChild(li);
         });
     }
-
-    document.getElementById("form-escuderia").addEventListener("submit", async e => {
-        e.preventDefault();
-        const nombre = document.getElementById("nombre-esc").value;
-        const pais = document.getElementById("pais-esc").value;
-        const campeonatos = parseInt(document.getElementById("campeonatos").value);
-
-        const resp = await fetch(`${API}/escuderias`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({nombre, pais, campeonatos})
-        });
-        alert((await resp.json()).mensaje);
-        cargarEscuderias();
-    });
 
 </script>
