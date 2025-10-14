@@ -1,8 +1,9 @@
-import sqlalchemy
+
+from sqlalchemy import text, create_engine
 
 DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
 
-engine = sqlalchemy.create_engine(DATABASE_URL, echo=True)  # echo=True para ver las queries
+engine = create_engine(DATABASE_URL, echo=True)  # echo=True para ver las queries
 
 schema_sql = """
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -62,7 +63,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 """
 
 with engine.begin() as conn:
-    conn.execute(sqlalchemy.text(schema_sql))
+    conn.execute(text(schema_sql))
 
 def agregar_pelicula(titulo, anio, duracion, sinopsis, id_director):
     query = text("""
