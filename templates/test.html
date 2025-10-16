@@ -10,20 +10,25 @@
 </div>
 {% endblock %}
 
-
+{% block scripts %}
 <script>
-    const API = "http://127.0.0.1:5000";
+    const API = "http://127.0.0.1:5000/api";
 
     async function cargarPeliculas() {
-        const resp = await fetch(`${API}/peliculas`);
-        const data = await resp.json();
-        const lista = document.getElementById("peliculas");
-        lista.innerHTML = "";
-        data.forEach(e => {
-            const li = document.createElement("li");
-            li.textContent = `${e}`;
-            lista.appendChild(li);
-        });
+      const resp = await fetch(`${API}/peliculas`);
+      const json = await resp.json();
+      console.log("Respuesta:", json);
+      
+      const data = json.data;
+      const lista = document.getElementById("peliculas");
+      lista.innerHTML = "";
+      data.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.titulo} (${p.anio})`;
+        lista.appendChild(li);
+      });
     }
 
+    window.addEventListener("DOMContentLoaded", cargarPeliculas);
 </script>
+{% endblock %}
