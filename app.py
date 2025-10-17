@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, jsonify
+from flask import Flask, redirect, url_for, render_template, jsonify, request
 from flask_cors import CORS
 import db
 
@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-
+#------rutas-------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -16,6 +16,8 @@ def home():
 def pagina_pelicula():
     return render_template("test.html")
 
+
+#------apis-------
 @app.route("/api/peliculas")
 def api_peliculas():
     peliculas = db.listar_peliculas()

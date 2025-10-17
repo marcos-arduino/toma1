@@ -3,7 +3,7 @@ from sqlalchemy import text, create_engine
 
 DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
 
-engine = create_engine(DATABASE_URL, echo=True)  # echo=True para ver las queries
+engine = create_engine(DATABASE_URL)  # echo=True para ver las queries
 
 schema_sql = """
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -90,7 +90,7 @@ def listar_peliculas():
     """)
     with engine.connect() as conn:
         result = conn.execute(query)
-        return [dict(row) for row in result]
+        return [dict(row) for row in result.mappings()]
 
 def buscar_pelicula_por_titulo(nombre):
     query = text("""
@@ -98,5 +98,5 @@ def buscar_pelicula_por_titulo(nombre):
     """)
     with engine.connect() as conn:
         result = conn.execute(query, {"nombre": f"%{nombre}%"})
-        return [dict(row) for row in result]
+        return [dict(row) for row in result.mappings()]
 
