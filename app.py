@@ -1,13 +1,17 @@
-from flask import Flask, redirect, url_for, render_template, jsonify, request
+from flask import Flask, render_template, jsonify
 from flask_cors import CORS
-import db
-
+import requests
+import os
 
 app = Flask(__name__)
 CORS(app)
 
+# TMDB
+API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
+TMDB_URL = f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}&language=es-ES&page=1"
 
-#------rutas-------
+
+# ------ Rutas de páginas -------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -17,27 +21,35 @@ def pagina_pelicula():
     return render_template("test.html")
 
 
-#------apis-------
+# ------ APIs -------
 @app.route("/api/peliculas", methods=["GET"])
 def api_peliculas():
-    peliculas = db.listar_peliculas()
-    return jsonify({
-        "status": "success",
-        "total": len(peliculas),
-        "data": peliculas
-    }), 200
+    try:
+        resp = requests.get(TMDB_URL)
+        resp.raise_for_status()
+        data = resp.json().get("results", [])
 
+        peliculas = []
+        for p in data:
+            peliculas.append({
+                "title": p.get("title", "Sin titulo"),
+                "text": p.get("overview", "Sin descripcion."),
+                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+                "updated": p.get("release_date", "Desconocido")
+            })
 
+        return jsonify({
+            "status": "success",
+            "total": len(peliculas),
+            "data": peliculas
+        }), 200
 
-
-# @app.route("/peliculas/<int:id>", methods=["GET"])
-# def cargar_pelicula(id):
-# 	conn = get_db_connection()
-#	pelicula = conn.execute("SELECT * FROM peliculas WHERE id = ?", (id,)).fetchone()
-#	conn.commit()
-#	conn.close()
-#	return render_template("pelicula.html", pelicula=pelicula)
-
+    except Exception as e:
+        print("Error al obtener peliculas:", e)
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 
 if __name__ == "__main__":

@@ -1,18 +1,16 @@
 {% extends 'base.html' %} {% block title %}Testing de Componentes{% endblock %} {% block content %}
 <h2>Test</h2>
-<div class="row row-cols-1 row-cols-md-3 g-4" id="peliculas">
-</div>
+<div class="row row-cols-1 row-cols-md-6 g-4" id="peliculas"></div>
 {% endblock %} {% block scripts %}
 <script>
     const API = "http://127.0.0.1:5000/api";
 
-    
-function crearCard(data) {
-  const col = document.createElement("div");
-  col.classList.add("col");
+    function crearCard(data) {
+        const col = document.createElement("div");
+        col.classList.add("col");
 
-  const card = document.createElement("div");
-  card.classList.add("card", "text-bg-dark");
+        const card = document.createElement("div");
+        card.classList.add("card", "text-bg-grey", "mb-3");
 
         const img = document.createElement("img");
         img.src = data.imageUrl;
@@ -28,31 +26,31 @@ function crearCard(data) {
         title.textContent = data.title;
         overlay.appendChild(title);
 
-        const text = document.createElement("p");
-        text.classList.add("card-text");
-        text.textContent = data.text;
-        overlay.appendChild(text);
+        // const text = document.createElement("p");
+        // text.classList.add("card-text");
+        // text.textContent = data.text;
+        // overlay.appendChild(text);
 
-  card.appendChild(overlay);
-  col.appendChild(card)
+        card.appendChild(overlay);
+        col.appendChild(card);
 
-  return col;
-}
+        return col;
+    }
 
     async function cargarPeliculas() {
-      console.log("Ejecutando cargarPeliculas()");
-      const resp = await fetch(`${API}/peliculas`);
-      const json = await resp.json();
-      console.log("Respuesta:", json);
-      
-      const data = json.data;
-      console.log("Data:", data);
-      const lista = document.getElementById("peliculas");
-      lista.innerHTML = "";
-      data.forEach(p => {
-        const nuevaCard = crearCard(p);
-        lista.appendChild(nuevaCard);
-      });
+        console.log("Ejecutando cargarPeliculas()");
+        const resp = await fetch(`${API}/peliculas`);
+        const json = await resp.json();
+        console.log("Respuesta:", json);
+
+        const data = json.data;
+        console.log("Data:", data);
+        const lista = document.getElementById("peliculas");
+        lista.innerHTML = "";
+        data.forEach((p) => {
+            const nuevaCard = crearCard(p);
+            lista.appendChild(nuevaCard);
+        });
     }
 
     window.addEventListener("DOMContentLoaded", cargarPeliculas);

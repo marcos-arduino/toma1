@@ -46,3 +46,35 @@
     background-color: white;
     color: #1e3c72;
 }
+
+.buscar {
+    width: 20rem;
+    border-radius: 20px;
+}
+
+.navbar-titulo {
+    font-weight: bold;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    justify-content: center;
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #ffffff;
+    justify-content: end;
+}
+
+.card-img-overlay {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    opacity: 0;
+}
+
+.card-img-overlay:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    transition: background-color 0.3s ease-in-out;
+}
