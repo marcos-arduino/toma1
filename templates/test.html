@@ -4,9 +4,7 @@
 
 {% block content %}
 <h2>Test</h2>
-<div id="carrousel-peliculas">
-    <ul id="peliculas">
-    </ul>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="peliculas">
 </div>
 {% endblock %}
 
@@ -16,6 +14,9 @@
 
     
 function crearCard(data) {
+  const col = document.createElement("div");
+  col.classList.add("col");
+
   const card = document.createElement("div");
   card.classList.add("card", "text-bg-dark");
 
@@ -38,16 +39,10 @@ function crearCard(data) {
   text.textContent = data.text;
   overlay.appendChild(text);
 
-  const updated = document.createElement("p");
-  updated.classList.add("card-text");
-  const small = document.createElement("small");
-  small.textContent = `Última actualización: ${data.updated}`;
-  updated.appendChild(small);
-  overlay.appendChild(updated);
-
   card.appendChild(overlay);
+  col.appendChild(card)
 
-  return card;
+  return col;
 }
 
     async function cargarPeliculas() {
@@ -62,7 +57,7 @@ function crearCard(data) {
       lista.innerHTML = "";
       data.forEach(p => {
         const nuevaCard = crearCard(p);
-        contenedorCards.appendChild(nuevaCard);
+        lista.appendChild(nuevaCard);
       });
     }
 
