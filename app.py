@@ -18,7 +18,7 @@ def pagina_pelicula():
 
 
 #------apis-------
-@app.route("/api/peliculas")
+@app.route("/api/peliculas", methods=["GET"])
 def api_peliculas():
     peliculas = db.listar_peliculas()
     return jsonify({
