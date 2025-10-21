@@ -1,9 +1,3 @@
-
-{% extends 'base.html' %} 
-{% block title %}Home{% endblock %} 
-
-{% block content %}
-<a href="{{url_for('pagina_pelicula')}}">
-    Peliculas
-</a>
+{% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
+<a href="{{url_for('pagina_peliculas_populares')}}"> Peliculas Populares </a>
 {% endblock %}

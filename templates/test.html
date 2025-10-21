@@ -1,5 +1,6 @@
 {% extends 'base.html' %} {% block title %}Testing de Componentes{% endblock %} {% block content %}
-<h2>Test</h2>
+<h1>Test</h1>
+<h2>Peliculas Populares</h2>
 <div class="row row-cols-1 row-cols-md-6 g-4" id="peliculas"></div>
 {% endblock %} {% block scripts %}
 <script>
@@ -8,6 +9,10 @@
     function crearCard(data) {
         const col = document.createElement("div");
         col.classList.add("col");
+
+        const link = document.createElement("a");
+        link.href = `/peliculas/${data.id}`;
+        link.classList.add("text-decoration-none", "text-reset");
 
         const card = document.createElement("div");
         card.classList.add("card", "text-bg-grey", "mb-3");
@@ -32,14 +37,15 @@
         // overlay.appendChild(text);
 
         card.appendChild(overlay);
-        col.appendChild(card);
+        link.appendChild(card);
+        col.appendChild(link);
 
         return col;
     }
 
     async function cargarPeliculas() {
         console.log("Ejecutando cargarPeliculas()");
-        const resp = await fetch(`${API}/peliculas`);
+        const resp = await fetch(`${API}/peliculas-popular`);
         const json = await resp.json();
         console.log("Respuesta:", json);
 

@@ -5,14 +5,14 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="static/style.css" />
-        <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" id="favicon.ico" type="image/x-icon" />
     </head>
     <body>
         <nav class="navbar">
             <div class="container-fluid">
                 <a class="navbar-brand navbar-titulo" href="{{url_for('home')}}">
-                    <img src="static/logo.png" alt="Logo" width="50" height="50" class="d-inline-block align-text-top" />
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="50" height="50" class="d-inline-block align-text-top" />
                     TomaUNO
                 </a>
                 <form class="d-flex" role="search">
