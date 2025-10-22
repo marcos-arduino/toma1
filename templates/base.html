@@ -21,6 +21,27 @@
             </div>
         </nav>
         {% block content %}{% endblock %}
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script>
+            (function () {
+                try {
+                    const socket = io();
+                    window.appSocket = socket;
+                    socket.on('connect', function () {
+                        console.log('socket connected', socket.id);
+                        socket.emit('ping', { ts: Date.now() });
+                    });
+                    socket.on('pong', function (data) {
+                        console.log('received pong', data);
+                    });
+                    socket.on('online_count', function (data) {
+                        console.log('online_count', data.count);
+                    });
+                } catch (e) {
+                    console.error('socket init error', e);
+                }
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         {% block scripts %}{% endblock %}
     </body>
