@@ -8,6 +8,53 @@
 <script>
     const API = "http://127.0.0.1:5000/api";
 
+    function crearCard(data) {
+        const col = document.createElement("div");
+        col.classList.add("col");
+
+        const link = document.createElement("a");
+        link.href = `/peliculas/${data.id}`;
+        link.classList.add("text-decoration-none", "text-reset");
+
+        const card = document.createElement("div");
+        card.classList.add("card", "text-bg-grey", "mb-3");
+
+        const img = document.createElement("img");
+        img.src = data.imageUrl;
+        img.classList.add("card-img");
+        img.alt = data.title || "Imagen no disponible";
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.classList.add("card-img-overlay");
+
+        const title = document.createElement("h5");
+        title.classList.add("card-title");
+        title.textContent = data.title;
+        overlay.appendChild(title);
+
+        // ⭐ Mostrar solo si hay rating válido
+        if (data.vote_average && data.vote_average !== "N/A" && data.vote_average !== 0) {
+            const rating = document.createElement("p");
+            rating.classList.add("card-text");
+            rating.textContent = `⭐ ${data.vote_average}`;
+            overlay.appendChild(rating);
+        }
+
+        const boton = crearBotonLista(data);
+        overlay.appendChild(boton);
+
+        card.appendChild(overlay);
+        link.appendChild(card);
+        col.appendChild(link);
+
+        return col;
+    }
+
+    function crearBotonLista(data) {
+        const boton = document.createElement("a");
+        boton.classList.add("btn", "btn-primary");
+        boton.textContent = "➕";
     function crearBotonLista(data) {
         const boton = document.createElement("a");
         boton.classList.add("btn", "btn-add");
@@ -24,6 +71,20 @@
 
             try {
                 if (!added) {
+                    const resp = await fetch(`/api/mi-lista/${id}/`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            user_id: 1,
+                            titulo: data.title,
+                            poster_url: data.imageUrl,
+                        }),
+                    });
+
+                    if (resp.ok) {
+                        boton.textContent = "✖️";
+                        boton.classList.replace("btn-primary", "btn-danger");
+                        boton.dataset.added = "true";
                     const resp = await fetch(`/api/mi-lista/${id}/`, { method: "POST", headers: { "Content-Type": "application/json" } });
                     if (resp.ok) {
                         boton.textContent = "✕";
@@ -54,8 +115,7 @@
         const resp = await fetch(`${API}/buscar?q=${encodeURIComponent(query)}`);
         const json = await resp.json();
 
-        const lista = document.getElementById("resultados");
-        lista.innerHTML = "";
+        tituloBusqueda.textContent = `Resultados para: "${query}"`;
 
         if (json.status === "success" && json.data.length > 0) {
             json.data.forEach((p) => {
@@ -94,9 +154,6 @@
         }
     }
 
-    // Obtener parámetro ?q= de la URL
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
-    if (q) buscarPeliculas(q);
+    window.addEventListener("DOMContentLoaded", cargarResultados);
 </script>
 {% endblock %}
