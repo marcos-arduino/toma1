@@ -3,8 +3,6 @@ from sqlalchemy import text, create_engine
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 
-
-
 DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
 
 engine = create_engine(DATABASE_URL)  # echo=True para ver las queries
