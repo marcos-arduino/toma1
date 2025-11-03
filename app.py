@@ -2,9 +2,15 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import requests
 import db
+import os
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Conjunto para llevar la cuenta de clientes conectados
+connected_clients = set()
 
 
 
@@ -97,6 +103,32 @@ def api_pelicula(movie_id):
             "message": str(e)
         }), 500
 
+@socketio.on("connect")
+def handle_connect(auth=None):
+    print("Cliente conectado")
+    connected_clients.add(request.sid)
+    socketio.emit("online_count", {"count": len(connected_clients)})
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Cliente desconectado")
+    connected_clients.discard(request.sid)
+    socketio.emit("online_count", {"count": len(connected_clients)})
+
+@socketio.on("ping")
+def handle_ping(data):
+    emit("pong", {"message": "pong"})
+
+@socketio.on("chat_message")
+def handle_chat_message(data):
+    # Reemite el mensaje a todos los clientes conectados
+    emit("chat_message", {"from": request.sid, "text": data.get("text")}, broadcast=True)
+
+@app.route("/api/broadcast-test", methods=["GET"])
+def broadcast_test():
+    # Emite un mensaje de prueba a todos los clientes conectados
+    socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
+    return jsonify({"status": "ok"}), 200
 
 @app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
 def agregar_pelicula_lista(pelicula_id):
@@ -127,4 +159,4 @@ def obtener_lista(user_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
