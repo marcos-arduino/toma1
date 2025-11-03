@@ -216,6 +216,52 @@ def login():
         }
     }), 200
 
+@app.route("/api/buscar", methods=["GET"])
+def buscar_peliculas():
+    """Busca películas por texto en TMDB"""
+    from flask import request
+
+    query = request.args.get("q", "").strip()
+
+    if not query:
+        return jsonify({
+            "status": "error",
+            "message": "Debe ingresar un texto de búsqueda."
+        }), 400
+
+    try:
+        resp = requests.get(f"{TMDB_URL}/search/movie", params={
+            "api_key": API_KEY,
+            "language": "es-ES",
+            "query": query
+        })
+        resp.raise_for_status()
+        data = resp.json().get("results", [])
+
+        peliculas = []
+        for p in data:
+            peliculas.append({
+                "id": p.get("id"),
+                "title": p.get("title", "Sin título"),
+                "text": p.get("overview", "Sin descripción."),
+                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+                "updated": p.get("release_date", "Desconocido")
+            })
+
+        return jsonify({
+            "status": "success",
+            "total": len(peliculas),
+            "data": peliculas
+        }), 200
+
+    except Exception as e:
+        print("Error al buscar películas:", e)
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

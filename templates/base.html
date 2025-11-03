@@ -16,8 +16,8 @@
                     TomaUNO
                 </a>
 
-                <form class="d-flex align-items-center" role="search">
-                    <input class="form-control me-2 buscar" type="search" placeholder="Buscar" aria-label="Search" />
+                <form class="d-flex" role="search" onsubmit="return buscarRedirect(event)">
+                    <input id="searchInput" class="form-control me-2 buscar" type="search" placeholder="Buscar" aria-label="Search" />
                 </form>
 
                 <div class="d-flex align-items-end">
@@ -53,6 +53,15 @@
                     console.error("socket init error", e);
                 }
             })();
+
+            function buscarRedirect(e) {
+                e.preventDefault();
+                const query = document.getElementById("searchInput").value.trim();
+                if (query) {
+                    window.location.href = `/buscar?q=${encodeURIComponent(query)}`;
+                }
+                return false;
+            }
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         <script src="{{url_for('static', filename='navbar.js')}}"></script>

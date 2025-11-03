@@ -1,9 +1,12 @@
 {% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
 <h1>Bienvenido a TomaUNO</h1>
 <p>Explora nuestra colección de películas y series.</p>
+
+<a href="/peliculas-popular" class="btn btn-primary">peliculas populares</a>
+
 <div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white">
+        <div class="modal-content">
             <div class="modal-header border-0">
                 <h5 class="modal-title" id="modalLoginLabel">Iniciar sesión</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -36,7 +39,7 @@
 
 <div class="modal fade" id="modalRegister" aria-hidden="true" aria-labelledby="modalRegisterLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white">
+        <div class="modal-content">
             <div class="modal-header border-0">
                 <h5 class="modal-title" id="modalRegisterLabel">Crear cuenta</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>

@@ -85,3 +85,14 @@
     opacity: 1;
     transition: background-color 0.3s ease-in-out;
 }
+
+.modal-content {
+    color: white;
+    opacity: 0.9;
+    transition: opacity 0.5s ease-in-out;
+    background: linear-gradient(to bottom, #0b1f3a, #1e3c72, #2a5298);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
