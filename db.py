@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS reviews (
   comentario TEXT,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS lista_usuario (
+    id_usuario INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    id_pelicula INT NOT NULL,
+    titulo VARCHAR(150) NOT NULL,
+    poster_url TEXT,
+    fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_usuario, id_pelicula)
+);
 """
 
 with engine.begin() as conn:

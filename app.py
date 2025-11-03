@@ -1,10 +1,12 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import requests
-import os
+import db
 
 app = Flask(__name__)
 CORS(app)
+
+
 
 # --- Configuración TMDB ---
 API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
@@ -94,6 +96,34 @@ def api_pelicula(movie_id):
             "status": "error",
             "message": str(e)
         }), 500
+
+
+@app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
+def agregar_pelicula_lista(pelicula_id):
+    data = request.json or {}
+    id_usuario = data.get("user_id", 1)  # por ahora usuario fijo para pruebas
+    titulo = data.get("titulo")
+    poster = data.get("poster_url")
+
+    db.agregar_a_lista(id_usuario, pelicula_id, titulo, poster)
+    return jsonify({"status": "success", "message": "Película agregada a tu lista"}), 201
+
+
+@app.route("/api/mi-lista/<int:pelicula_id>/", methods=["DELETE"])
+def eliminar_pelicula_lista(pelicula_id):
+    id_usuario = request.args.get("user_id", 1)  # también por ahora fijo
+    db.eliminar_de_lista(id_usuario, pelicula_id)
+    return jsonify({"status": "success", "message": "Película eliminada de tu lista"}), 200
+
+
+@app.route("/api/mi-lista/<int:user_id>/", methods=["GET"])
+def obtener_lista(user_id):
+    lista = db.obtener_lista_usuario(user_id)
+    return jsonify({
+        "status": "success",
+        "total": len(lista),
+        "data": lista
+    }), 200
 
 
 if __name__ == "__main__":

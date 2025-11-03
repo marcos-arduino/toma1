@@ -31,6 +31,14 @@
         title.textContent = data.title;
         overlay.appendChild(title);
 
+        const rating = document.createElement("p");
+        rating.classList.add("card-text");
+        rating.textContent = `⭐ ${data.vote_average}`;
+        overlay.appendChild(rating);
+
+        const boton = crearBotonLista(data);
+        overlay.appendChild(boton);
+
         // const text = document.createElement("p");
         // text.classList.add("card-text");
         // text.textContent = data.text;
@@ -41,6 +49,54 @@
         col.appendChild(link);
 
         return col;
+    }
+
+    function crearBotonLista(data) {
+        const boton = document.createElement("a");
+        boton.classList.add("btn", "btn-primary");
+        boton.textContent = "➕";
+        boton.dataset.id = data.id;
+        boton.dataset.added = "false"; // 🔹 estado inicial
+
+        boton.addEventListener("click", async (e) => {
+            e.preventDefault(); // evita redirección
+
+            const id = boton.dataset.id;
+            const added = boton.dataset.added === "true";
+
+            try {
+                if (!added) {
+                    const resp = await fetch(`/api/mi-lista/${id}/`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (resp.ok) {
+                        boton.textContent = "✖️";
+                        boton.classList.replace("btn-primary", "btn-danger");
+                        boton.dataset.added = "true";
+                    } else {
+                        alert("Error al agregar la película");
+                    }
+                } else {
+                    const resp = await fetch(`/api/mi-lista/${id}/`, {
+                        method: "DELETE",
+                    });
+
+                    if (resp.ok) {
+                        boton.textContent = "➕";
+                        boton.classList.replace("btn-danger", "btn-primary");
+                        boton.dataset.added = "false";
+                    } else {
+                        alert("Error al eliminar la película");
+                    }
+                }
+            } catch (err) {
+                console.error("Error con la API:", err);
+            }
+        });
+
+        return boton;
     }
 
     async function cargarPeliculas() {

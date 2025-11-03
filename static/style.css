@@ -59,6 +59,13 @@
     justify-content: center;
 }
 
+.row {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 0 10rem;
+}
+
 .card-title {
     font-weight: bold;
     font-size: 1.2rem;
