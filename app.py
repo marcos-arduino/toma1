@@ -24,7 +24,49 @@ TMDB_URL = "https://api.themoviedb.org/3"
 # -------- RUTAS DE PÁGINAS --------
 @app.route("/")
 def home():
-    return render_template("index.html")
+    try:
+        resp = requests.get(f"{TMDB_URL}/movie/popular", params={
+            "api_key": API_KEY,
+            "language": "es-ES"
+        })
+        resp.raise_for_status()
+        data = resp.json().get("results", [])
+
+        # Solo con poster real
+        con_poster = [p for p in data if p.get("poster_path")]
+        # Destacados: primeros 15
+        destacados = [
+            {
+                "id": p.get("id"),
+                "title": p.get("title", "Sin título"),
+                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}",
+                "vote_average": p.get("vote_average")
+            }
+            for p in con_poster[:15]
+        ]
+
+        # Mejores valuadas: top 15 por vote_average
+        ordenadas = sorted(
+            [p for p in con_poster if isinstance(p.get("vote_average"), (int, float))],
+            key=lambda x: x.get("vote_average", 0),
+            reverse=True,
+        )
+        mejores = [
+            {
+                "id": p.get("id"),
+                "title": p.get("title", "Sin título"),
+                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}",
+                "vote_average": p.get("vote_average")
+            }
+            for p in ordenadas[:15]
+        ]
+
+    except Exception as e:
+        print("Error en home():", e)
+        destacados = []
+        mejores = []
+
+    return render_template("index.html", destacados=destacados, mejores=mejores)
 
 @app.route("/peliculas-popular")
 def pagina_peliculas_populares():

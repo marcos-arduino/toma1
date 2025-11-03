@@ -1,83 +1,233 @@
 {% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
-<section class="py-4">
-    <h1 class="mb-2">Tu diario de cine</h1>
-    <p class="lead">Descubre, lista y reseña películas. Un diseño limpio inspirado en Letterboxd.</p>
-    <div class="d-flex gap-2 mt-3">
-        <a href="/peliculas-popular" class="btn btn-success">Ver populares</a>
-        <a href="#" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</a>
-    </div>
-</section>
-
-<div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="modalLoginLabel">Iniciar sesión</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-                <form id="formLogin">
-                    <div class="mb-3">
-                        <label for="loginEmail" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="loginEmail" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="loginPass" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="loginPass" required />
-                    </div>
-                    <div id="loginMsg" class="text-danger small mb-2"></div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+    <!-- Hero sencillo estilo Letterboxd -->
+    <section class="rounded-3 overflow-hidden" style="position: relative; background: linear-gradient(rgba(11,15,20,0.55), rgba(11,15,20,0.85)), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;">
+        <div class="container-xl py-5">
+            <div class="py-5" style="max-width: 760px;">
+                <h1 class="display-5 fw-bold mb-2">El diario de tus películas</h1>
+                <p class="lead mb-3">Descubrí qué ver hoy. Guardá lo que te gusta. Explorá por géneros.</p>
+                <form class="d-flex" role="search" onsubmit="return buscarDesdeHero(event)">
+                    <input id="searchInputHero" class="form-control me-2 buscar" type="search" placeholder="Buscar películas, directores..." aria-label="Search" />
+                    <button class="btn btn-success" type="submit">Buscar</button>
                 </form>
             </div>
+        </div>
+    </section>
 
-            <div class="modal-footer border-0 justify-content-center">
-                <p class="mb-0">
-                    ¿No tienes cuenta?
-                    <button class="btn btn-link text-info p-0" data-bs-target="#modalRegister" data-bs-toggle="modal" data-bs-dismiss="modal">Registrate aquí</button>
-                </p>
+    <!-- Destacados (Carousel) -->
+    <section class="mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="mb-0">Destacados</h2>
+        </div>
+        <div id="carouselDestacados" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner">
+                {% for grupo in destacados|batch(6, None) %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="poster-grid">
+                        {% for p in grupo if p %}
+                        <a href="/peliculas/{{p.id}}" class="text-decoration-none text-reset">
+                            <div class="poster-card">
+                                <img class="poster" src="{{p.imageUrl}}" alt="Imagen de la pelicula" />
+                                <div class="card-img-overlay">
+                                    <h5 class="card-title">{{p.title}}</h5>
+                                    <p class="card-text muted">⭐ {% if p.vote_average is number %}{{ '%.1f'|format(p.vote_average) }}{% else %}N/D{% endif %}</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestacados" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselDestacados" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Mejores valuadas (Carousel) -->
+    <section class="mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="mb-0">Mejores valuadas</h2>
+        </div>
+        <div id="carouselMejores" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner">
+                {% for grupo in mejores|batch(6, None) %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="poster-grid">
+                        {% for p in grupo if p %}
+                        <a href="/peliculas/{{p.id}}" class="text-decoration-none text-reset">
+                            <div class="poster-card">
+                                <img class="poster" src="{{p.imageUrl}}" alt="Imagen de la pelicula" />
+                                <div class="card-img-overlay">
+                                    <h5 class="card-title">{{p.title}}</h5>
+                                    <p class="card-text muted">⭐ {% if p.vote_average is number %}{{ '%.1f'|format(p.vote_average) }}{% else %}N/D{% endif %}</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselMejores" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselMejores" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Géneros (cards de texto) -->
+    <section class="mt-4">
+        <h2 class="mb-2">Géneros</h2>
+        <div id="generos" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+            {% set generos = [
+                'Acción','Drama','Comedia','Ciencia Ficción','Terror','Animación',
+                'Aventura','Romance','Crimen','Misterio','Fantasía','Documental'
+            ] %}
+            {% for g in generos %}
+            <div class="col">
+                <a class="card h-100 text-center text-decoration-none text-reset" href="/buscar?q={{g}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{g}}</h5>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Modales de autenticación -->
+    <div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="modalLoginLabel">Iniciar sesión</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="formLogin">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="loginEmail" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPass" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPass" required />
+                        </div>
+                        <div id="loginMsg" class="text-danger small mb-2"></div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                    </form>
+                </div>
+
+                <div class="modal-footer border-0 justify-content-center">
+                    <p class="mb-0">
+                        ¿No tienes cuenta?
+                        <button class="btn btn-link text-info p-0" data-bs-target="#modalRegister" data-bs-toggle="modal" data-bs-dismiss="modal">Registrate aquí</button>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="modalRegister" aria-hidden="true" aria-labelledby="modalRegisterLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="modalRegisterLabel">Crear cuenta</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
+    <div class="modal fade" id="modalRegister" aria-hidden="true" aria-labelledby="modalRegisterLabel" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="modalRegisterLabel">Crear cuenta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
 
-            <div class="modal-body">
-                <form id="formRegister">
-                    <div class="mb-3">
-                        <label for="regNombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="regNombre" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="regEmail" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="regEmail" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="regPass" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="regPass" required />
-                    </div>
-                    <div id="registerMsg" class="text-danger small mb-2"></div>
-                    <button type="submit" class="btn btn-success w-100">Registrarse</button>
-                </form>
-            </div>
+                <div class="modal-body">
+                    <form id="formRegister">
+                        <div class="mb-3">
+                            <label for="regNombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="regNombre" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="regEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="regEmail" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPass" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="regPass" required />
+                        </div>
+                        <div id="registerMsg" class="text-danger small mb-2"></div>
+                        <button type="submit" class="btn btn-success w-100">Registrarse</button>
+                    </form>
+                </div>
 
-            <div class="modal-footer border-0 justify-content-center">
-                <p class="mb-0">
-                    ¿Ya tienes cuenta?
-                    <button class="btn btn-link text-info p-0" data-bs-target="#modalLogin" data-bs-toggle="modal" data-bs-dismiss="modal">Inicia sesión</button>
-                </p>
+                <div class="modal-footer border-0 justify-content-center">
+                    <p class="mb-0">
+                        ¿Ya tienes cuenta?
+                        <button class="btn btn-link text-info p-0" data-bs-target="#modalLogin" data-bs-toggle="modal" data-bs-dismiss="modal">Inicia sesión</button>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-{% endblock %} {% block scripts %}
+{% endblock %} 
+{% block scripts %}
 <script src="{{ url_for('static', filename='login.js') }}"></script>
+<script>
+    const API = "/api";
+
+    function buscarDesdeHero(e) {
+        e.preventDefault();
+        const q = document.getElementById("searchInputHero").value.trim();
+        if (q) window.location.href = `/buscar?q=${encodeURIComponent(q)}`;
+        return false;
+    }
+
+    // Client-side rendering no longer needed; kept minimal helpers only if needed later
+    function crearCard(data) {
+        if (!data || !data.title) return null;
+        const col = document.createElement("div");
+        const link = document.createElement("a");
+        link.href = `/peliculas/${data.id}`;
+        link.classList.add("text-decoration-none", "text-reset");
+        const card = document.createElement("div");
+        card.classList.add("poster-card");
+        const img = document.createElement("img");
+        img.src = data.imageUrl || "https://image.tmdb.org/t/p/w500/eg4cvYCkUCqCdMi2Rrnf40VQ2CG.jpg";
+        img.classList.add("poster");
+        img.alt = "Imagen de la pelicula";
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.classList.add("card-img-overlay");
+        const title = document.createElement("h5");
+        title.classList.add("card-title");
+        title.textContent = data.title;
+        overlay.appendChild(title);
+        const rating = document.createElement("p");
+        rating.classList.add("card-text", "muted");
+        const score = (typeof data.vote_average === 'number' && !isNaN(data.vote_average)) ? (Math.round(data.vote_average * 10) / 10).toFixed(1) : 'N/D';
+        rating.textContent = `⭐ ${score}`;
+        overlay.appendChild(rating);
+        card.appendChild(overlay);
+        link.appendChild(card);
+        col.appendChild(link);
+        return col;
+    }
+
+    // cargarFilas eliminado: filas se renderizan del lado del servidor
+
+    // crearCardGenero eliminado: géneros renderizados en servidor
+
+    // cargarGeneros eliminado: ya se pintan en servidor
+
+    window.addEventListener("DOMContentLoaded", () => {
+        console.log("Landing: listo");
+    });
+</script>
 {% endblock %}
