@@ -59,7 +59,8 @@ def api_peliculas():
                 "title": p.get("title", "Sin título"),
                 "text": p.get("overview", "Sin descripción."),
                 "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
-                "updated": p.get("release_date", "Desconocido")
+                "updated": p.get("release_date", "Desconocido"),
+                "vote_average": p.get("vote_average")
             })
 
         return jsonify({
@@ -250,7 +251,8 @@ def buscar_peliculas():
                 "title": p.get("title", "Sin título"),
                 "text": p.get("overview", "Sin descripción."),
                 "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
-                "updated": p.get("release_date", "Desconocido")
+                "updated": p.get("release_date", "Desconocido"),
+                "vote_average": p.get("vote_average")
             })
 
         return jsonify({

@@ -1,8 +1,12 @@
 {% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
-<h1>Bienvenido a TomaUNO</h1>
-<p>Explora nuestra colección de películas y series.</p>
-
-<a href="/peliculas-popular" class="btn btn-primary">peliculas populares</a>
+<section class="py-4">
+    <h1 class="mb-2">Tu diario de cine</h1>
+    <p class="lead">Descubre, lista y reseña películas. Un diseño limpio inspirado en Letterboxd.</p>
+    <div class="d-flex gap-2 mt-3">
+        <a href="/peliculas-popular" class="btn btn-success">Ver populares</a>
+        <a href="#" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</a>
+    </div>
+</section>
 
 <div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
