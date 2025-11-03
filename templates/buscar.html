@@ -1,11 +1,54 @@
 {% extends 'base.html' %} {% block title %}Buscar películas{% endblock %} {% block content %}
-<div class="container mt-4">
-    <h2>Resultados de búsqueda</h2>
-    <div id="resultados" class="row row-cols-1 row-cols-md-6 g-4 mt-3"></div>
-</div>
+<section class="mt-2">
+    <h2 class="mb-3">Resultados de búsqueda</h2>
+    <div id="resultados" class="poster-grid mt-3"></div>
+    
+</section>
 {% endblock %} {% block scripts %}
 <script>
     const API = "http://127.0.0.1:5000/api";
+
+    function crearBotonLista(data) {
+        const boton = document.createElement("a");
+        boton.classList.add("btn", "btn-add");
+        boton.textContent = "+";
+        boton.dataset.id = data.id;
+        boton.dataset.added = "false";
+
+        boton.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const id = boton.dataset.id;
+            const added = boton.dataset.added === "true";
+
+            try {
+                if (!added) {
+                    const resp = await fetch(`/api/mi-lista/${id}/`, { method: "POST", headers: { "Content-Type": "application/json" } });
+                    if (resp.ok) {
+                        boton.textContent = "✕";
+                        boton.classList.add("btn-danger");
+                        boton.dataset.added = "true";
+                    } else {
+                        alert("Error al agregar la película");
+                    }
+                } else {
+                    const resp = await fetch(`/api/mi-lista/${id}/`, { method: "DELETE" });
+                    if (resp.ok) {
+                        boton.textContent = "+";
+                        boton.classList.remove("btn-danger");
+                        boton.dataset.added = "false";
+                    } else {
+                        alert("Error al eliminar la película");
+                    }
+                }
+            } catch (err) {
+                console.error("Error con la API:", err);
+            }
+        });
+
+        return boton;
+    }
 
     async function buscarPeliculas(query) {
         const resp = await fetch(`${API}/buscar?q=${encodeURIComponent(query)}`);
@@ -17,22 +60,33 @@
         if (json.status === "success" && json.data.length > 0) {
             json.data.forEach((p) => {
                 const col = document.createElement("div");
-                col.classList.add("col");
+
+                const link = document.createElement("a");
+                link.href = `/peliculas/${p.id}`;
+                link.classList.add("text-decoration-none", "text-reset");
 
                 const card = document.createElement("div");
-                card.classList.add("card", "text-bg-dark", "mb-3");
+                card.classList.add("poster-card");
 
                 const img = document.createElement("img");
                 img.src = p.imageUrl;
-                img.classList.add("card-img-top");
+                img.classList.add("poster");
+                img.alt = "Poster";
                 card.appendChild(img);
 
-                const body = document.createElement("div");
-                body.classList.add("card-body");
-                body.innerHTML = `<h5>${p.title}</h5><p>${p.updated}</p>`;
-                card.appendChild(body);
+                const overlay = document.createElement("div");
+                overlay.classList.add("card-img-overlay");
+                const score = (typeof p.vote_average === 'number' && !isNaN(p.vote_average))
+                    ? (Math.round(p.vote_average * 10) / 10).toFixed(1)
+                    : 'N/D';
+                overlay.innerHTML = `<h5 class=\"card-title\">${p.title}</h5><p class=\"card-text muted\">⭐ ${score}</p>`;
+                card.appendChild(overlay);
 
-                col.appendChild(card);
+                const boton = crearBotonLista(p);
+                card.appendChild(boton);
+
+                link.appendChild(card);
+                col.appendChild(link);
                 lista.appendChild(col);
             });
         } else {

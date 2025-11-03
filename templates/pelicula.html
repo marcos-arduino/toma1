@@ -1,14 +1,22 @@
 {% extends 'base.html' %} {% block title %}Película{% endblock %} {% block content %}
-<h1>Detalles de la Película</h1>
-<div id="pelicula" class="container mt-4 text-center">
-    <h2 id="titulo"></h2>
-    <img id="imagen" class="img-fluid mb-3" alt="Poster de la película" />
-    <p id="descripcion" class="lead"></p>
-    <p><strong>Fecha de lanzamiento:</strong> <span id="fecha"></span></p>
-    <p><strong>Duración:</strong> <span id="duracion"></span> minutos</p>
-    <p><strong>Géneros:</strong> <span id="generos"></span></p>
-    <p><strong>Puntuación:</strong> <span id="puntuacion"></span></p>
-</div>
+<section id="pelicula" class="mt-2">
+    <div class="movie-detail">
+        <div>
+            <img id="imagen" class="movie-poster" alt="Poster de la película" />
+        </div>
+        <div>
+            <h1 id="titulo" class="mb-3"></h1>
+            <p id="descripcion" class="lead"></p>
+            <div class="mt-3">
+                <div class="mb-1"><span class="muted">Lanzamiento:</span> <span id="fecha"></span></div>
+                <div class="mb-1"><span class="muted">Duración:</span> <span id="duracion"></span> <span class="muted">min</span></div>
+                <div class="mb-1"><span class="muted">Géneros:</span> <span id="generos"></span></div>
+                <div class="mb-1"><span class="muted">Puntuación:</span> <span id="puntuacion" class="accent"></span></div>
+            </div>
+        </div>
+    </div>
+    
+</section>
 
 <!-- con mantener los id alcanza, ejemplo: <span id="..."></span>, <hX id="titulo"></hX>. todo el resto se puede modificar libremente -->
 <!-- cada cada contenido va dirigido a esos ids, creo que no importa que tipo de etiqueta sea -->
