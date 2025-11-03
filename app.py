@@ -34,6 +34,11 @@ def pagina_peliculas_populares():
 def pagina_pelicula(movie_id):
     return render_template("pelicula.html", movie_id=movie_id)
 
+@app.route("/buscar")
+def pagina_busqueda():
+    """Página que muestra los resultados de búsqueda."""
+    return render_template("buscar.html")
+
 
 # -------- API REST --------
 @app.route("/api/peliculas-popular", methods=["GET"])
