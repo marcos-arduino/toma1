@@ -4,9 +4,11 @@ import requests
 import db
 import os
 from flask_socketio import SocketIO, emit
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 CORS(app)
+bcrypt = Bcrypt(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Conjunto para llevar la cuenta de clientes conectados
@@ -132,10 +134,18 @@ def broadcast_test():
 
 @app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
 def agregar_pelicula_lista(pelicula_id):
-    data = request.json or {}
-    id_usuario = data.get("user_id", 1)  # por ahora usuario fijo para pruebas
+    data = request.get_json(silent=True)
+    print("📩 Datos recibidos:", data)  # 👀 imprimí esto
+
+    if not data:
+        return jsonify({"status": "error", "message": "No se recibió JSON"}), 400
+
+    id_usuario = data.get("user_id", 1)
     titulo = data.get("titulo")
     poster = data.get("poster_url")
+
+    if not titulo:
+        return jsonify({"status": "error", "message": "Falta el título"}), 400
 
     db.agregar_a_lista(id_usuario, pelicula_id, titulo, poster)
     return jsonify({"status": "success", "message": "Película agregada a tu lista"}), 201
@@ -155,6 +165,55 @@ def obtener_lista(user_id):
         "status": "success",
         "total": len(lista),
         "data": lista
+    }), 200
+
+
+@app.route("/api/auth/register", methods=["POST"])
+def register():
+    data = request.json or {}
+    nombre = data.get("nombre")
+    email = data.get("email")
+    contrasena = data.get("contrasena")
+
+    if not nombre or not email or not contrasena:
+        return jsonify({"status": "error", "message": "Faltan campos"}), 400
+
+    # Verificar si ya existe el email
+    if db.buscar_usuario_por_email(email):
+        return jsonify({"status": "error", "message": "El usuario ya existe"}), 400
+
+    user_id = db.registrar_usuario(nombre, email, contrasena)
+    return jsonify({
+        "status": "success",
+        "message": "Usuario registrado correctamente",
+        "user_id": user_id
+    }), 201
+
+
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    data = request.json or {}
+    email = data.get("email")
+    contrasena = data.get("contrasena")
+
+    if not email or not contrasena:
+        return jsonify({"status": "error", "message": "Faltan datos"}), 400
+
+    usuario = db.buscar_usuario_por_email(email)
+    if not usuario:
+        return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
+
+    if not bcrypt.check_password_hash(usuario["contrasena_hash"], contrasena):
+        return jsonify({"status": "error", "message": "Contraseña incorrecta"}), 401
+
+    return jsonify({
+        "status": "success",
+        "message": "Inicio de sesión exitoso",
+        "user": {
+            "id": usuario["id"],
+            "nombre": usuario["nombre"],
+            "email": usuario["email"]
+        }
     }), 200
 
 

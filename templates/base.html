@@ -15,9 +15,21 @@
                     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="50" height="50" class="d-inline-block align-text-top" />
                     TomaUNO
                 </a>
-                <form class="d-flex" role="search">
+
+                <form class="d-flex align-items-center" role="search">
                     <input class="form-control me-2 buscar" type="search" placeholder="Buscar" aria-label="Search" />
                 </form>
+
+                <div class="d-flex align-items-end">
+                    <button id="btn-login" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</button>
+                    <div id="user-menu" class="dropdown d-none ms-2">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">Mi cuenta</button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/perfil">Perfil</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout">Cerrar sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </nav>
         {% block content %}{% endblock %}
@@ -27,22 +39,23 @@
                 try {
                     const socket = io();
                     window.appSocket = socket;
-                    socket.on('connect', function () {
-                        console.log('socket connected', socket.id);
-                        socket.emit('ping', { ts: Date.now() });
+                    socket.on("connect", function () {
+                        console.log("socket connected", socket.id);
+                        socket.emit("ping", { ts: Date.now() });
                     });
-                    socket.on('pong', function (data) {
-                        console.log('received pong', data);
+                    socket.on("pong", function (data) {
+                        console.log("received pong", data);
                     });
-                    socket.on('online_count', function (data) {
-                        console.log('online_count', data.count);
+                    socket.on("online_count", function (data) {
+                        console.log("online_count", data.count);
                     });
                 } catch (e) {
-                    console.error('socket init error', e);
+                    console.error("socket init error", e);
                 }
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <script src="{{url_for('static', filename='navbar.js')}}"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>

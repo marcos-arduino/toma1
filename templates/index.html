@@ -1,3 +1,76 @@
 {% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
-<a href="{{url_for('pagina_peliculas_populares')}}"> Peliculas Populares </a>
+<h1>Bienvenido a TomaUNO</h1>
+<p>Explora nuestra colección de películas y series.</p>
+<div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="modalLoginLabel">Iniciar sesión</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formLogin">
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="loginEmail" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPass" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="loginPass" required />
+                    </div>
+                    <div id="loginMsg" class="text-danger small mb-2"></div>
+                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center">
+                <p class="mb-0">
+                    ¿No tienes cuenta?
+                    <button class="btn btn-link text-info p-0" data-bs-target="#modalRegister" data-bs-toggle="modal" data-bs-dismiss="modal">Registrate aquí</button>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegister" aria-hidden="true" aria-labelledby="modalRegisterLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="modalRegisterLabel">Crear cuenta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formRegister">
+                    <div class="mb-3">
+                        <label for="regNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="regNombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="regEmail" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="regPass" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="regPass" required />
+                    </div>
+                    <div id="registerMsg" class="text-danger small mb-2"></div>
+                    <button type="submit" class="btn btn-success w-100">Registrarse</button>
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center">
+                <p class="mb-0">
+                    ¿Ya tienes cuenta?
+                    <button class="btn btn-link text-info p-0" data-bs-target="#modalLogin" data-bs-toggle="modal" data-bs-dismiss="modal">Inicia sesión</button>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='login.js') }}"></script>
 {% endblock %}

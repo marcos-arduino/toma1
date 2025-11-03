@@ -1,5 +1,9 @@
 
 from sqlalchemy import text, create_engine
+from flask_bcrypt import Bcrypt
+bcrypt = Bcrypt()
+
+
 
 DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
 
@@ -109,3 +113,25 @@ def buscar_pelicula_por_titulo(nombre):
         result = conn.execute(query, {"nombre": f"%{nombre}%"})
         return [dict(row) for row in result.mappings()]
 
+
+
+def registrar_usuario(nombre, email, contrasena):
+    contrasena_hash = bcrypt.generate_password_hash(contrasena).decode("utf-8")
+    query = text("""
+        INSERT INTO usuarios (nombre, email, contrasena_hash)
+        VALUES (:nombre, :email, :contrasena_hash)
+        RETURNING id;
+    """)
+    with engine.begin() as conn:
+        result = conn.execute(query, {
+            "nombre": nombre,
+            "email": email,
+            "contrasena_hash": contrasena_hash
+        })
+        return result.scalar()
+
+def buscar_usuario_por_email(email):
+    query = text("SELECT * FROM usuarios WHERE email = :email")
+    with engine.connect() as conn:
+        result = conn.execute(query, {"email": email}).mappings().fetchone()
+        return result
