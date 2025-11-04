@@ -23,7 +23,7 @@ Backend: Flask, Flask-SocketIO, Flask-Bcrypt, Requests
 
 Frontend: HTML, CSS (Bootstrap), JavaScript
 
-Base de datos: SQLite (con capa db.py)
+Base de datos: PostgreSQL (con capa db.py)
 
 API externa: The Movie Database (TMDB)
 
