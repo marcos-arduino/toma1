@@ -1,7 +1,7 @@
 # TomaUNO
 
 TomaUNO es una aplicación web desarrollada con Flask que permite descubrir, listar y reseñar películas utilizando la API de The Movie Database (TMDB).
-El proyecto está inspirado en plataformas como Letterboxd, priorizando una interfaz limpia y una experiencia de usuario fluida.
+El proyecto está inspirado en plataformas como Letterboxd / IMDb / Filmafinity, priorizando una interfaz limpia y una experiencia de usuario fluida.
 
 ### 🧩 Funcionalidades principales
 
