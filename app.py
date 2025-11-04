@@ -26,9 +26,9 @@ TMDB_URL = "https://api.themoviedb.org/3"
 def home():
     return render_template("index.html")
 
-@app.route("/peliculas-popular")
-def pagina_peliculas_populares():
-    return render_template("test.html")
+@app.route("/peliculas/<string:tipo>")
+def ver_peliculas(tipo):
+    return render_template("grid-peliculas.html", tipo=tipo)
 
 @app.route("/peliculas/<int:movie_id>")
 def pagina_pelicula(movie_id):
@@ -41,27 +41,36 @@ def pagina_busqueda():
 
 
 # -------- API REST --------
-@app.route("/api/peliculas-popular", methods=["GET"])
-def api_peliculas():
-    """Devuelve lista de películas populares"""
+@app.route("/api/peliculas/<categoria>", methods=["GET"])
+def api_peliculas_categoria(categoria):
     try:
-        resp = requests.get(f"{TMDB_URL}/movie/popular", params={
+        match categoria:
+            case "popular":
+                endpoint = "movie/popular"
+            case "top_rated":
+                endpoint = "movie/top_rated"
+            case "upcoming":
+                endpoint = "movie/upcoming"
+            case "now_playing":
+                endpoint = "movie/now_playing"
+            case _:
+                return jsonify({"status": "error", "message": "Categoría no válida"}), 400
+
+        resp = requests.get(f"{TMDB_URL}/{endpoint}", params={
             "api_key": API_KEY,
             "language": "es-ES"
         })
         resp.raise_for_status()
         data = resp.json().get("results", [])
 
-        peliculas = []
-        for p in data:
-            peliculas.append({
-                "id": p.get("id"),
-                "title": p.get("title", "Sin título"),
-                "text": p.get("overview", "Sin descripción."),
-                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
-                "updated": p.get("release_date", "Desconocido"),
-                "vote_average": p.get("vote_average")
-            })
+        peliculas = [{
+            "id": p.get("id"),
+            "title": p.get("title", "Sin título"),
+            "text": p.get("overview", "Sin descripción."),
+            "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+            "updated": p.get("release_date", "Desconocido"),
+            "vote_average": p.get("vote_average")
+        } for p in data]
 
         return jsonify({
             "status": "success",

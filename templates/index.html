@@ -3,80 +3,12 @@
     <h1 class="mb-2">Tu diario de cine</h1>
     <p class="lead">Descubre, lista y reseña películas. Un diseño limpio inspirado en Letterboxd.</p>
     <div class="d-flex gap-2 mt-3">
-        <a href="/peliculas-popular" class="btn btn-success">Ver populares</a>
-        <a href="#" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</a>
+        <a href="{{ url_for('ver_peliculas', tipo='popular') }}" class="btn btn-success">Ver populares</a>
+        <a href="{{ url_for('ver_peliculas', tipo='top_rated') }}" class="btn btn-outline-light">Ver mejor valoradas</a>
+        <a href="{{ url_for('ver_peliculas', tipo='upcoming') }}" class="btn btn-outline-light">Próximos estrenos</a>
+        <a href="{{ url_for('ver_peliculas', tipo='now_playing') }}" class="btn btn-outline-light">En cines</a>
     </div>
 </section>
-
-<div class="modal fade" id="modalLogin" aria-hidden="true" aria-labelledby="modalLoginLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="modalLoginLabel">Iniciar sesión</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-                <form id="formLogin">
-                    <div class="mb-3">
-                        <label for="loginEmail" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="loginEmail" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="loginPass" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="loginPass" required />
-                    </div>
-                    <div id="loginMsg" class="text-danger small mb-2"></div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                </form>
-            </div>
-
-            <div class="modal-footer border-0 justify-content-center">
-                <p class="mb-0">
-                    ¿No tienes cuenta?
-                    <button class="btn btn-link text-info p-0" data-bs-target="#modalRegister" data-bs-toggle="modal" data-bs-dismiss="modal">Registrate aquí</button>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalRegister" aria-hidden="true" aria-labelledby="modalRegisterLabel" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="modalRegisterLabel">Crear cuenta</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-                <form id="formRegister">
-                    <div class="mb-3">
-                        <label for="regNombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="regNombre" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="regEmail" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="regEmail" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="regPass" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="regPass" required />
-                    </div>
-                    <div id="registerMsg" class="text-danger small mb-2"></div>
-                    <button type="submit" class="btn btn-success w-100">Registrarse</button>
-                </form>
-            </div>
-
-            <div class="modal-footer border-0 justify-content-center">
-                <p class="mb-0">
-                    ¿Ya tienes cuenta?
-                    <button class="btn btn-link text-info p-0" data-bs-target="#modalLogin" data-bs-toggle="modal" data-bs-dismiss="modal">Inicia sesión</button>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock %} {% block scripts %}
 <script src="{{ url_for('static', filename='login.js') }}"></script>
