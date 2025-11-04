@@ -3,7 +3,8 @@
     <h1 class="mb-2">Tu diario de cine</h1>
     <p class="lead">Descubre, lista y reseña películas. Un diseño limpio inspirado en Letterboxd.</p>
     <div class="d-flex gap-2 mt-3">
-        <a href="{{ url_for('ver_peliculas', tipo='popular') }}" class="btn btn-success">Ver populares</a>
+        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</a>
+        <a href="{{ url_for('ver_peliculas', tipo='popular') }}" class="btn btn-outline-light">Ver populares</a>
         <a href="{{ url_for('ver_peliculas', tipo='top_rated') }}" class="btn btn-outline-light">Ver mejor valoradas</a>
         <a href="{{ url_for('ver_peliculas', tipo='upcoming') }}" class="btn btn-outline-light">Próximos estrenos</a>
         <a href="{{ url_for('ver_peliculas', tipo='now_playing') }}" class="btn btn-outline-light">En cines</a>
