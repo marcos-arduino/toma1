@@ -1,9 +1,6 @@
-
 from sqlalchemy import text, create_engine
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
-
-
 
 DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
 
@@ -61,9 +58,13 @@ CREATE TABLE IF NOT EXISTS reviews (
   id_usuario INT REFERENCES usuarios(id) ON DELETE CASCADE,
   id_pelicula INT REFERENCES peliculas(id) ON DELETE CASCADE,
   rating NUMERIC(3,1),
+  titulo VARCHAR(150),
   comentario TEXT,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ensure titulo exists if table already created without it
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS titulo VARCHAR(150);
 
 CREATE TABLE IF NOT EXISTS lista_usuario (
     id_usuario INT REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -94,6 +95,35 @@ def agregar_pelicula(titulo, anio, duracion, sinopsis, id_director):
         })
         return result.scalar()
 
+def crear_review(id_usuario, id_pelicula, rating, titulo, comentario):
+    query = text("""
+        INSERT INTO reviews (id_usuario, id_pelicula, rating, titulo, comentario)
+        VALUES (:id_usuario, :id_pelicula, :rating, :titulo, :comentario)
+        RETURNING id;
+    """)
+    with engine.begin() as conn:
+        result = conn.execute(query, {
+            "id_usuario": id_usuario,
+            "id_pelicula": id_pelicula,
+            "rating": rating,
+            "titulo": titulo,
+            "comentario": comentario,
+        })
+        return result.scalar()
+
+def listar_reviews_por_pelicula(id_pelicula):
+    query = text("""
+        SELECT r.id, r.id_usuario, r.id_pelicula, r.rating, r.titulo, r.comentario, r.fecha,
+               u.nombre AS usuario
+        FROM reviews r
+        LEFT JOIN usuarios u ON u.id = r.id_usuario
+        WHERE r.id_pelicula = :id_pelicula
+        ORDER BY r.fecha DESC
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_pelicula": id_pelicula}).mappings().fetchall()
+        return [dict(row) for row in rows]
+
 def listar_peliculas():
     query = text("""
         SELECT p.id, p.titulo, p.anio, d.nombre AS director
@@ -104,6 +134,15 @@ def listar_peliculas():
     with engine.connect() as conn:
         result = conn.execute(query)
         return [dict(row) for row in result.mappings()]
+
+def upsert_pelicula_minima(id_pelicula, titulo, anio=None):
+    query = text("""
+        INSERT INTO peliculas (id, titulo, anio)
+        VALUES (:id, :titulo, :anio)
+        ON CONFLICT (id) DO NOTHING;
+    """)
+    with engine.begin() as conn:
+        conn.execute(query, {"id": id_pelicula, "titulo": titulo, "anio": anio})
 
 def buscar_pelicula_por_titulo(nombre):
     query = text("""

@@ -16,6 +16,32 @@
         </div>
     </div>
     
+    <hr class="my-4" />
+
+    <div class="review-box">
+        <h2 class="h4 mb-3">Escribir una reseña</h2>
+        <form id="formReview" class="review-form">
+            <div class="mb-3">
+                <label class="form-label">Tu calificación</label>
+                <div id="ratingWidget" class="rating" aria-label="Calificación de 1 a 10 con medias estrellas"></div>
+                <input type="hidden" id="ratingInput" name="rating" value="0" />
+            </div>
+            <div class="mb-3">
+                <label for="reviewTitle" class="form-label">Título</label>
+                <input id="reviewTitle" class="form-control" type="text" maxlength="150" placeholder="Un breve título" />
+            </div>
+            <div class="mb-3">
+                <label for="reviewBody" class="form-label">Reseña</label>
+                <textarea id="reviewBody" class="form-control" rows="4" placeholder="Contá qué te pareció"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Publicar reseña</button>
+        </form>
+    </div>
+
+    <div class="mt-4">
+        <h2 class="h5 mb-2">Reseñas de la comunidad</h2>
+        <div id="reviewsList" class="vstack gap-3"></div>
+    </div>
 </section>
 
 <!-- con mantener los id alcanza, ejemplo: <span id="..."></span>, <hX id="titulo"></hX>. todo el resto se puede modificar libremente -->
@@ -53,6 +79,131 @@
         }
     }
 
-    window.addEventListener("DOMContentLoaded", cargarPelicula);
+    // ---- Reviews ----
+    function renderStars(container, value) {
+        const stars = Array.from(container.querySelectorAll('.star'));
+        stars.forEach((el, idx) => {
+            const starIndex = idx + 1; // 1..10
+            el.classList.remove('filled', 'half');
+            if (value >= starIndex) {
+                el.classList.add('filled');
+            } else if (value + 0.5 === starIndex) {
+                el.classList.add('half');
+            }
+        });
+    }
+
+    function initRatingWidget() {
+        const wrap = document.getElementById('ratingWidget');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        for (let i = 0; i < 10; i++) {
+            const s = document.createElement('span');
+            s.className = 'star';
+            s.textContent = '★';
+            wrap.appendChild(s);
+        }
+        const input = document.getElementById('ratingInput');
+        let current = 0;
+        wrap.addEventListener('mousemove', (e) => {
+            const target = e.target.closest('.star');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const idx = Array.from(wrap.children).indexOf(target); // 0..9
+            const half = (e.clientX - rect.left) < rect.width / 2 ? 0.5 : 1.0;
+            const val = idx + half; // 0.5..10
+            renderStars(wrap, val);
+        });
+        wrap.addEventListener('mouseleave', () => renderStars(wrap, current));
+        wrap.addEventListener('click', (e) => {
+            const target = e.target.closest('.star');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const idx = Array.from(wrap.children).indexOf(target);
+            const half = (e.clientX - rect.left) < rect.width / 2 ? 0.5 : 1.0;
+            current = idx + half;
+            input.value = current;
+            renderStars(wrap, current);
+        });
+        renderStars(wrap, current);
+    }
+
+    async function cargarReviews() {
+        try {
+            const res = await fetch(`${API}/reviews/${movieId}`);
+            const json = await res.json();
+            const list = document.getElementById('reviewsList');
+            list.innerHTML = '';
+            (json.data || []).forEach(r => {
+                const item = document.createElement('div');
+                item.className = 'review-item';
+                item.innerHTML = `
+                    <div class="d-flex align-items-start gap-2">
+                        <div class="review-rating">${Number(r.rating).toFixed(1)} ★</div>
+                        <div>
+                            <div class="fw-semibold">${r.titulo || '(Sin título)'}</div>
+                            <div class="small muted">por ${r.usuario || 'Anónimo'} · ${new Date(r.fecha).toLocaleDateString()}</div>
+                            <div class="mt-1">${(r.comentario || '').replace(/</g,'&lt;')}</div>
+                        </div>
+                    </div>`;
+                list.appendChild(item);
+            });
+        } catch (e) {
+            console.error('reviews error', e);
+        }
+    }
+
+    function initFormReview() {
+        const form = document.getElementById('formReview');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+            if (!usuario) {
+                const modal = new bootstrap.Modal(document.getElementById('modalLogin'));
+                modal.show();
+                return;
+            }
+            const rating = parseFloat(document.getElementById('ratingInput').value || '0');
+            const titulo = document.getElementById('reviewTitle').value.trim();
+            const comentario = document.getElementById('reviewBody').value.trim();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            const originalClasses = btn.className;
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${API}/reviews/${movieId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: usuario.id, rating, titulo, comentario })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    btn.className = 'btn btn-success';
+                    btn.textContent = 'Reseña publicada';
+                    form.reset();
+                    document.getElementById('ratingInput').value = '0';
+                    initRatingWidget();
+                    cargarReviews();
+                } else {
+                    btn.className = 'btn btn-danger';
+                    btn.textContent = (data && data.message) ? data.message : 'Error al publicar';
+                }
+            } catch (err) {
+                btn.className = 'btn btn-danger';
+                btn.textContent = 'Error de red';
+            }
+            setTimeout(() => { btn.className = originalClasses; btn.textContent = originalText; btn.disabled = false; }, 800);
+        });
+    }
+
+    function initPelicula() {
+        cargarPelicula();
+        initRatingWidget();
+        initFormReview();
+        cargarReviews();
+    }
+
+    window.addEventListener("DOMContentLoaded", initPelicula);
 </script>
 {% endblock %}

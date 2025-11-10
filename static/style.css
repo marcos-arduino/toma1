@@ -284,3 +284,59 @@ h1, h2, h3, h4, h5 {
 .accent {
     color: #00e054;
 }
+
+/* Rating widget */
+.rating {
+    display: flex;
+    gap: 6px;
+    font-size: 36px;
+    line-height: 1;
+    user-select: none;
+    cursor: pointer;
+    margin-top: .25rem;
+}
+.rating .star {
+    display: inline-block;
+    position: relative;
+    color: rgba(223,230,238,0.35);
+    transition: color .15s ease, opacity .15s ease;
+}
+.rating .star.filled { color: #f5c518; }
+.rating .star.half { color: rgba(223,230,238,0.35); }
+.rating .star.half::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: #f5c518;
+}
+
+/* Reviews list */
+.review-item {
+    background: #14181c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: .75rem .9rem;
+}
+.review-rating {
+    color: #f5c518;
+    font-weight: 600;
+    min-width: 56px;
+}
+
+/* Review form controls look like the search input */
+.review-form .form-control {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+    border-radius: 20px;
+}
+.review-form .form-control::placeholder { color: rgba(223,230,238,0.6); }
+.review-form .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #00e054;
+    box-shadow: 0 0 0 .2rem rgba(0,224,84,0.15);
+    color: #dfe6ee;
+}

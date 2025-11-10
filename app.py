@@ -85,6 +85,57 @@ def api_peliculas_categoria(categoria):
         }), 500
 
 
+
+# -------- REVIEWS --------
+@app.route("/api/reviews/<int:movie_id>", methods=["GET"])
+def listar_reviews(movie_id):
+    try:
+        items = db.listar_reviews_por_pelicula(movie_id)
+        return jsonify({
+            "status": "success",
+            "total": len(items),
+            "data": items,
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/reviews/<int:movie_id>", methods=["POST"])
+def crear_review(movie_id):
+    try:
+        data = request.json or {}
+        id_usuario = data.get("user_id", 1)
+        rating = float(data.get("rating"))
+        titulo = (data.get("titulo") or "").strip()
+        comentario = (data.get("comentario") or "").strip()
+
+        if not (1.0 <= rating <= 10.0):
+            return jsonify({"status": "error", "message": "Rating inválido"}), 400
+        # Ensure pelicula exists locally to satisfy FK
+        try:
+            resp = requests.get(f"{TMDB_URL}/movie/{movie_id}", params={
+                "api_key": API_KEY,
+                "language": "es-ES"
+            })
+            resp.raise_for_status()
+            m = resp.json()
+            titulo_min = m.get("title") or m.get("original_title") or f"TMDB {movie_id}"
+            anio_min = None
+            if m.get("release_date"):
+                anio_min = int(m["release_date"].split("-")[0])
+            db.upsert_pelicula_minima(movie_id, titulo_min, anio_min)
+        except Exception:
+            # As a last resort, insert with fallback title
+            db.upsert_pelicula_minima(movie_id, f"TMDB {movie_id}")
+
+        review_id = db.crear_review(id_usuario, movie_id, rating, titulo, comentario)
+        return jsonify({
+            "status": "success",
+            "id": review_id,
+        }), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route("/api/peliculas/<int:movie_id>", methods=["GET"])
 def api_pelicula(movie_id):
     """Devuelve detalles de una película específica por ID"""
