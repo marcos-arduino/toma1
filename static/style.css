@@ -326,6 +326,19 @@ h1, h2, h3, h4, h5 {
     min-width: 56px;
 }
 
+/* Perfil: lista de reseñas con estilo oscuro acorde al sitio */
+#listaReviews {
+    background: transparent;
+}
+#listaReviews .list-group-item {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+}
+#listaReviews .text-muted {
+    color: #dfe6ee !important;
+}
+
 /* Review form controls look like the search input */
 .review-form .form-control {
     background-color: rgba(255, 255, 255, 0.06);

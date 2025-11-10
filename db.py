@@ -124,6 +124,19 @@ def listar_reviews_por_pelicula(id_pelicula):
         rows = conn.execute(query, {"id_pelicula": id_pelicula}).mappings().fetchall()
         return [dict(row) for row in rows]
 
+def listar_reviews_por_usuario(id_usuario):
+    query = text("""
+        SELECT r.id, r.id_usuario, r.id_pelicula, r.rating, r.titulo, r.comentario, r.fecha,
+               p.titulo AS titulo_pelicula
+        FROM reviews r
+        LEFT JOIN peliculas p ON p.id = r.id_pelicula
+        WHERE r.id_usuario = :id_usuario
+        ORDER BY r.fecha DESC
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_usuario": id_usuario}).mappings().fetchall()
+        return [dict(row) for row in rows]
+
 def listar_peliculas():
     query = text("""
         SELECT p.id, p.titulo, p.anio, d.nombre AS director

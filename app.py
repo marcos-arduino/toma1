@@ -38,6 +38,10 @@ def pagina_busqueda():
     """Página que muestra los resultados de búsqueda."""
     return render_template("buscar.html")
 
+@app.route("/perfil")
+def pagina_perfil():
+    return render_template("perfil.html")
+
 
 # -------- API REST --------
 @app.route("/api/peliculas/<categoria>", methods=["GET"])
@@ -91,6 +95,18 @@ def api_peliculas_categoria(categoria):
 def listar_reviews(movie_id):
     try:
         items = db.listar_reviews_por_pelicula(movie_id)
+        return jsonify({
+            "status": "success",
+            "total": len(items),
+            "data": items,
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/api/users/<int:user_id>/reviews", methods=["GET"])
+def listar_reviews_usuario(user_id):
+    try:
+        items = db.listar_reviews_por_usuario(user_id)
         return jsonify({
             "status": "success",
             "total": len(items),
