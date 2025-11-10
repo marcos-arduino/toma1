@@ -1,7 +1,8 @@
-const API = "http://127.0.0.1:5000/api/auth";
+const AUTH_API = "http://127.0.0.1:5000/api/auth";
 
 // --- LOGIN ---
-document.getElementById("formLogin").addEventListener("submit", async (e) => {
+const formLogin = document.getElementById("formLogin");
+if (formLogin) formLogin.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value.trim();
     const contrasena = document.getElementById("loginPass").value.trim();
@@ -9,7 +10,7 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
     msg.textContent = "";
 
     try {
-        const res = await fetch(`${API}/login`, {
+        const res = await fetch(`${AUTH_API}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, contrasena }),
@@ -17,7 +18,8 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
         const data = await res.json();
 
         if (data.status === "success") {
-            localStorage.setItem("token", data.token);
+            const token = data.token || "local-session";
+            localStorage.setItem("token", token);
             localStorage.setItem("usuario", JSON.stringify(data.user));
 
             msg.classList.remove("text-danger");
@@ -34,7 +36,8 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
 });
 
 // --- REGISTRO ---
-document.getElementById("formRegister").addEventListener("submit", async (e) => {
+const formRegister = document.getElementById("formRegister");
+if (formRegister) formRegister.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nombre = document.getElementById("regNombre").value.trim();
     const email = document.getElementById("regEmail").value.trim();
@@ -43,7 +46,7 @@ document.getElementById("formRegister").addEventListener("submit", async (e) => 
     msg.textContent = "";
 
     try {
-        const res = await fetch(`${API}/register`, {
+        const res = await fetch(`${AUTH_API}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nombre, email, contrasena }),

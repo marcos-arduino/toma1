@@ -92,7 +92,7 @@
             const json = await resp.json();
             const data = json.data || [];
 
-            document.getElementById("tituloPeliculas").textContent = tipo.replace("-", " ").toUpperCase();
+            document.getElementById("tituloPeliculas").textContent = tipo.replace("_", " ").toUpperCase();
 
             const lista = document.getElementById("peliculas");
             lista.innerHTML = "";

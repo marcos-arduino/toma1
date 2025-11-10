@@ -54,6 +54,11 @@
     border-radius: 20px;
 }
 
+/* Make all Bootstrap buttons consistently rounded like the search bar */
+.btn { border-radius: 20px; }
+.btn-sm { border-radius: 18px; }
+.btn-lg { border-radius: 24px; }
+
 .navbar-titulo {
     font-weight: 700;
     font-size: 1.25rem;
@@ -123,7 +128,7 @@ h1, h2, h3, h4, h5 {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 20px;
     background: rgba(20, 24, 28, 0.75);
     border: 1px solid rgba(223, 230, 238, 0.25);
     color: #dfe6ee;
@@ -172,8 +177,51 @@ h1, h2, h3, h4, h5 {
     color: #dfe6ee;
     background-color: #14181c;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+    border-radius: 10px;
 }
+
+/* Modal sizing and spacing */
+.modal .modal-dialog { max-width: 520px; }
+.modal .modal-body { padding-top: .75rem; }
+
+.modal-header,
+.modal-footer {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.modal-title {
+    color: #dfe6ee;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%);
+    opacity: .8;
+}
+.btn-close:hover { opacity: 1; }
+
+/* Inputs dentro del modal: coherentes con tema oscuro */
+.modal .form-label { color: #dfe6ee; }
+.modal .form-control {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+    border-radius: 20px;
+}
+.modal .form-control::placeholder { color: rgba(223,230,238,0.6); }
+.modal .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #00e054;
+    box-shadow: 0 0 0 .2rem rgba(0,224,84,0.15);
+    color: #dfe6ee;
+}
+
+/* Extra spacing in login modal between password and submit */
+#formLogin .mb-3:last-of-type { margin-bottom: 1rem; }
+#loginMsg { margin-bottom: 1rem; }
+
+/* Backdrop más sutil y acorde al tema */
+.modal-backdrop.show { opacity: 0.75; }
 
 /* Detail page layout */
 .movie-detail {
@@ -185,6 +233,42 @@ h1, h2, h3, h4, h5 {
 @media (min-width: 768px) {
     .movie-detail { grid-template-columns: 300px 1fr; }
 }
+
+/* Primary button styled with site accent */
+.btn-primary {
+    background-color: #00e054;
+    border-color: #00e054;
+    color: #0b0f14;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #06c84b;
+    border-color: #06c84b;
+    color: #0b0f14;
+}
+.btn-primary:focus {
+    box-shadow: 0 0 0 .2rem rgba(0,224,84,0.25);
+}
+
+/* Success button aligned with accent (e.g., "Registrarse") */
+.btn-success {
+    background-color: #00e054;
+    border-color: #00e054;
+    color: #0b0f14;
+}
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #06c84b;
+    border-color: #06c84b;
+    color: #0b0f14;
+}
+.btn-success:focus {
+    box-shadow: 0 0 0 .2rem rgba(0,224,84,0.25);
+}
+
+/* Links dentro del modal en color acorde */
+.modal .btn-link.text-info { color: #63e6a5; }
+.modal .btn-link.text-info:hover { color: #00e054; }
 
 .movie-poster {
     width: 100%;

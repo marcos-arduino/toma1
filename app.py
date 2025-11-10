@@ -15,7 +15,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 connected_clients = set()
 
 
-
 # --- Configuración TMDB ---
 API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
 TMDB_URL = "https://api.themoviedb.org/3"
