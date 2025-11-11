@@ -102,3 +102,50 @@ Flask-CORS:	Permite peticiones entre dominios
 SQLAlchemy:	ORM y manejo de base de datos
 psycopg2-binary:	Conector de PostgreSQL
 Requests:	Comunicación con la API de TMDB
+
+## Estructura de Frontend (CSS/JS)
+
+La app organiza los estilos y scripts para mejorar mantenibilidad, consistencia y caché.
+
+- **static/css/**
+  - Hojas globales y por página: `css/style.css`, `css/index.css`, `css/perfil.css`, `css/pelicula.css`, `css/grid.css`, `css/buscar.css`.
+  - En los templates se cargan con `{% block extra_css %}` para evitar cargar CSS innecesario.
+
+- **static/js/core/** (núcleo compartido)
+  - `api.js`: resuelve `API_BASE` por entorno y expone `fetchJSON(url, opts)`.
+  - `utils.js`: utilidades genéricas (por ejemplo `formatDateDMY`).
+  - `ui.js`: componentes UI reutilizables (`crearPosterCard`, `crearBotonLista`, `initRatingWidget`).
+  - Se importan desde los scripts de página con ES Modules.
+
+- **static/js/global/** (scripts del layout base)
+  - `login.js`: maneja login/registro en los modales globales.
+  - `navbar.js`: estado de sesión en el navbar y logout.
+  - Se cargan en `templates/base.html` y están disponibles en todas las páginas.
+
+- **static/js/pages/** (lógica específica por página)
+  - `index.js`, `grid.js`, `buscar.js`, `pelicula.js`, `perfil.js`.
+  - Los templates cargan su script con `<script type="module" src="...">` dentro de `{% block scripts %}`.
+
+### Cómo agregar una nueva página
+
+1. Crear el template `templates/nueva.html` extendiendo `base.html`.
+2. (Opcional) Crear `static/css/nueva.css` y enlazarlo con `{% block extra_css %}`.
+3. Crear `static/js/pages/nueva.js` y cargarlo con:
+
+   ```html
+   {% block scripts %}
+   <script type="module" src="{{ url_for('static', filename='js/pages/nueva.js') }}"></script>
+   {% endblock %}
+   ```
+
+4. Reutilizar utilidades desde core cuando sea posible:
+
+   ```js
+   import { API_BASE, fetchJSON } from '../core/api.js'
+   import { crearPosterCard } from '../core/ui.js'
+   ```
+
+### Notas
+
+- Los archivos antiguos en `static/` raíz fueron migrados a `static/css` y `static/js`.
+- Si agregás nuevas utilidades compartidas, ubícalas en `static/js/core/` para que puedan importarse desde cualquier página.
