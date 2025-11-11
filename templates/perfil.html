@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Perfil{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Perfil{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">{% endblock %} {% block content %}
 
 <section id="" class="mt-2">
     <div class="profile-detail">
@@ -19,5 +19,5 @@
 </section>
 
 {% endblock %} {% block scripts %}
-<script src="{{ url_for('static', filename='perfil.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/pages/perfil.js') }}"></script>
 {% endblock %}
