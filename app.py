@@ -187,16 +187,37 @@ def api_pelicula(movie_id):
         }), 500
 
 @socketio.on("connect")
-def handle_connect(auth=None):
-    print("Cliente conectado")
-    connected_clients.add(request.sid)
-    socketio.emit("online_count", {"count": len(connected_clients)})
+def handle_connect():
+    client_id = request.sid
+    connected_clients.add(client_id)
+    print(f"Cliente conectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Enviar mensaje de bienvenida al cliente que se acaba de conectar
+    emit("welcome", {
+        "message": "Conectado al servidor",
+        "your_id": client_id,
+        "total_clients": len(connected_clients)
+    })
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    }, broadcast=True)
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print("Cliente desconectado")
-    connected_clients.discard(request.sid)
-    socketio.emit("online_count", {"count": len(connected_clients)})
+    client_id = request.sid
+    connected_clients.discard(client_id)
+    print(f"Cliente desconectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    socketio.emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    })
 
 @socketio.on("ping")
 def handle_ping(data):
@@ -204,8 +225,16 @@ def handle_ping(data):
 
 @socketio.on("chat_message")
 def handle_chat_message(data):
+    client_id = request.sid
+    message_text = data.get("text", "")
+    print(f"Mensaje de {client_id}: {message_text}")
+    
     # Reemite el mensaje a todos los clientes conectados
-    emit("chat_message", {"from": request.sid, "text": data.get("text")}, broadcast=True)
+    emit("chat_message", {
+        "from": client_id,
+        "text": message_text,
+        "timestamp": data.get("timestamp")
+    }, broadcast=True)
 
 @app.route("/api/broadcast-test", methods=["GET"])
 def broadcast_test():
@@ -216,7 +245,7 @@ def broadcast_test():
 @app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
 def agregar_pelicula_lista(pelicula_id):
     data = request.get_json(silent=True)
-    print("📩 Datos recibidos:", data)  # 👀 imprimí esto
+    print("Datos recibidos:", data)  #imprimí esto
 
     if not data:
         return jsonify({"status": "error", "message": "No se recibió JSON"}), 400
@@ -346,4 +375,9 @@ def buscar_peliculas():
 
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    print("="*50)
+    print("Servidor Flask + Socket.IO iniciado")
+    print("Los clientes pueden conectarse vía WebSocket")
+    print("URL: http://localhost:5000")
+    print("="*50)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
