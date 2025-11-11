@@ -420,8 +420,23 @@ h5 {
 .site-footer .footer-links a {
     color: #9ab;
     text-decoration: none;
+    overflow-wrap: anywhere; /* allow breaking long words like emails/URLs */
+    word-break: break-word;  /* fallback */
+    hyphens: auto;           /* hyphenation when available */
 }
 .site-footer .footer-links a:hover {
     color: #dfe6ee;
     text-decoration: underline;
+}
+
+/* Ensure footer container can wrap content on small screens */
+.site-footer .container-xl {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+.site-footer .row { min-width: 0; }
+.site-footer .footer-links { min-width: 0; }
+@media (min-width: 768px) {
+  .site-footer .container-xl { flex-direction: column; }
 }
