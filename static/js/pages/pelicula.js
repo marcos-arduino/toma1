@@ -1,6 +1,6 @@
 import { API_BASE, fetchJSON } from "../core/api.js";
 import { formatDateDMY } from "../core/utils.js";
-import { initRatingWidget } from "../core/ui.js";
+import { initRatingWidget, crearBotonLista } from "../core/ui.js";
 
 const movieId = window.MOVIE_ID;
 
@@ -28,6 +28,30 @@ async function cargarPelicula() {
         }
         if (Array.isArray(p.cast) && p.cast.length) {
             document.getElementById("elenco").textContent = p.cast.slice(0,3).join(", ");
+        }
+        // Botón de agregar a mi lista (variant full)
+        const wrap = document.getElementById('addToListWrap');
+        if (wrap) {
+            wrap.innerHTML = '';
+            const btn = crearBotonLista({ id: p.id, title: p.title, imageUrl: p.imageUrl }, { variant: 'full' });
+            wrap.appendChild(btn);
+            // Setear estado inicial según si ya está en la lista
+            try {
+                const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+                if (usuario && usuario.id) {
+                    const { ok, data } = await fetchJSON(`${API_BASE}/mi-lista/${usuario.id}/`);
+                    if (ok && data && Array.isArray(data.data)) {
+                        const yaEsta = data.data.some(item => String(item.id) === String(p.id));
+                        if (yaEsta) {
+                            // replicar lógica de estado "added"
+                            btn.dataset.added = 'true';
+                            btn.textContent = 'Quitar de mi lista';
+                            btn.classList.remove('btn-outline-success');
+                            btn.classList.add('btn-danger');
+                        }
+                    }
+                }
+            } catch {}
         }
     } catch (err) {
         console.error("Error cargando película:", err);

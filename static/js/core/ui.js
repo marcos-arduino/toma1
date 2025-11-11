@@ -1,9 +1,16 @@
 import { API_BASE } from './api.js';
 
-export function crearBotonLista(data) {
+export function crearBotonLista(data, { variant = 'icon' } = {}) {
   const boton = document.createElement('button');
-  boton.classList.add('btn', 'btn-add');
-  boton.textContent = '+';
+  boton.classList.add('btn');
+  if (variant === 'icon') {
+    boton.classList.add('btn-add');
+    boton.textContent = '+';
+  } else {
+    boton.classList.add('btn-outline-success');
+    boton.textContent = 'Agregar a mi lista';
+    boton.dataset.variant = 'full';
+  }
   boton.dataset.id = data.id;
   boton.dataset.added = 'false';
 
@@ -13,6 +20,18 @@ export function crearBotonLista(data) {
 
     const id = boton.dataset.id;
     const added = boton.dataset.added === 'true';
+    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+
+    // Si no hay sesión, abrir modal de login y salir
+    if (!usuario || !usuario.id) {
+      try {
+        const modalEl = document.getElementById('modalLogin');
+        if (modalEl && window.bootstrap?.Modal) {
+          new bootstrap.Modal(modalEl).show();
+        }
+      } catch {}
+      return;
+    }
 
     try {
       if (!added) {
@@ -20,23 +39,35 @@ export function crearBotonLista(data) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: 1,
+            user_id: usuario.id,
             titulo: data.title,
             poster_url: data.imageUrl,
           }),
         });
         if (resp.ok) {
-          boton.textContent = '✕';
-          boton.classList.add('btn-danger');
+          if (variant === 'icon') {
+            boton.textContent = '✕';
+            boton.classList.add('btn-danger');
+          } else {
+            boton.textContent = 'Quitar de mi lista';
+            boton.classList.remove('btn-outline-success');
+            boton.classList.add('btn-danger');
+          }
           boton.dataset.added = 'true';
         } else {
           alert('Error al agregar la película');
         }
       } else {
-        const resp = await fetch(`${API_BASE}/mi-lista/${id}/`, { method: 'DELETE' });
+        const resp = await fetch(`${API_BASE}/mi-lista/${id}/?user_id=${encodeURIComponent(usuario.id)}`, { method: 'DELETE' });
         if (resp.ok) {
-          boton.textContent = '+';
-          boton.classList.remove('btn-danger');
+          if (variant === 'icon') {
+            boton.textContent = '+';
+            boton.classList.remove('btn-danger');
+          } else {
+            boton.textContent = 'Agregar a mi lista';
+            boton.classList.remove('btn-danger');
+            boton.classList.add('btn-outline-success');
+          }
           boton.dataset.added = 'false';
         } else {
           alert('Error al eliminar la película');
