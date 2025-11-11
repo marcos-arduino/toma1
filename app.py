@@ -163,15 +163,31 @@ def api_pelicula(movie_id):
         resp.raise_for_status()
         data = resp.json()
 
+        # Obtener créditos para elenco principal (top 3)
+        cast_names = []
+        try:
+            credits = requests.get(
+                f"{TMDB_URL}/movie/{movie_id}/credits",
+                params={"api_key": API_KEY, "language": "es-ES"}
+            )
+            credits.raise_for_status()
+            cjson = credits.json() or {}
+            cast = cjson.get("cast", [])
+            cast_names = [c.get("name") for c in cast if c.get("name")] [:3]
+        except Exception:
+            cast_names = []
+
         pelicula = {
             "id": data.get("id"),
             "title": data.get("title", "Sin título"),
             "overview": data.get("overview", "Sin descripción disponible."),
             "imageUrl": f"https://image.tmdb.org/t/p/w500{data['poster_path']}" if data.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+            "backdropUrl": f"https://image.tmdb.org/t/p/w1280{data['backdrop_path']}" if data.get("backdrop_path") else None,
             "release_date": data.get("release_date", "Desconocido"),
             "runtime": data.get("runtime", "N/D"),
             "genres": [g["name"] for g in data.get("genres", [])],
-            "vote_average": data.get("vote_average", "N/D")
+            "vote_average": data.get("vote_average", "N/D"),
+            "cast": cast_names
         }
 
         return jsonify({

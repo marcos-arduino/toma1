@@ -105,3 +105,20 @@
     text-decoration: none;
 }
 .more-link:hover { color: #dfe6ee; text-decoration: underline; }
+
+/* Prevent horizontal overflow on tiny screens */
+@media (max-width: 576px) {
+  .index-hero {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .carousel-wrap { padding: 0; }
+  .nav-arrow { width: 32px; height: 32px; }
+  .nav-prev { left: 0; }
+  .nav-next { right: 0; }
+  .scroller { grid-auto-columns: 80%; }
+}

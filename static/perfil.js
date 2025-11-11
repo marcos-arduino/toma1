@@ -19,38 +19,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const favoritasEl = document.getElementById("numFavoritas");
 
     if (nombreEl) nombreEl.textContent = usuario.nombre || "Usuario";
-    if (bioEl) bioEl.textContent = usuario.email ? `Email: ${usuario.email}` : "";
-    if (fechaEl) fechaEl.textContent = "N/D";
+    if (bioEl) bioEl.textContent = "";
+    if (fechaEl) fechaEl.textContent = "";
 
     // Reseñas del usuario
     if (listaReviews && usuario.id) {
-        listaReviews.innerHTML = "<li class='list-group-item'>Cargando reseñas...</li>";
+        listaReviews.innerHTML = "<div class='text-muted small'>Cargando reseñas...</div>";
         fetch(`${API_BASE}/users/${usuario.id}/reviews`)
             .then((r) => r.json())
             .then((data) => {
                 if (!data || data.status !== "success") {
-                    listaReviews.innerHTML = "<li class='list-group-item'>No se pudieron cargar tus reseñas.</li>";
+                    listaReviews.innerHTML = "<div class='text-muted small'>No se pudieron cargar tus reseñas.</div>";
                     return;
                 }
                 const items = data.data || [];
                 if (items.length === 0) {
-                    listaReviews.innerHTML = "<li class='list-group-item'>No has escrito ninguna reseña aún.</li>";
+                    listaReviews.innerHTML = "<div class='text-muted small'>No has escrito ninguna reseña aún.</div>";
                     return;
                 }
                 listaReviews.innerHTML = "";
                 items.forEach((rev) => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item";
+                    const item = document.createElement("div");
+                    item.className = "review-item mb-2";
                     const tituloPel = rev.titulo_pelicula || `Pelicula #${rev.id_pelicula}`;
                     const rating = (rev.rating != null ? Number(rev.rating).toFixed(1) : "-");
-                    const titulo = (rev.titulo && rev.titulo.trim()) ? ` – ${rev.titulo.trim()}` : "";
-                    const comentario = (rev.comentario && rev.comentario.trim()) ? `<div class='text-muted small mt-1'>${rev.comentario.trim()}</div>` : "";
-                    li.innerHTML = `<strong>${tituloPel}</strong> (${rating}/10)${titulo}${comentario}`;
-                    listaReviews.appendChild(li);
+                    const fechaTxt = rev.fecha ? new Date(rev.fecha).toLocaleDateString() : "";
+                    const titulo = (rev.titulo && rev.titulo.trim()) ? `<div class='small fw-semibold mt-1'>${rev.titulo.trim()}</div>` : "";
+                    const comentario = (rev.comentario && rev.comentario.trim()) ? `<div class='mt-1'>${rev.comentario.trim().replace(/</g,'&lt;')}</div>` : "";
+                    item.innerHTML = `
+                        <div class="d-flex align-items-start gap-2">
+                            <div class="review-rating">${rating} ★</div>
+                            <div>
+                                <div class="fw-semibold">${tituloPel}</div>
+                                <div class="small muted">${fechaTxt}</div>
+                                ${titulo}
+                                ${comentario}
+                            </div>
+                        </div>`;
+                    listaReviews.appendChild(item);
                 });
             })
             .catch(() => {
-                listaReviews.innerHTML = "<li class='list-group-item'>No se pudieron cargar tus reseñas.</li>";
+                listaReviews.innerHTML = "<div class='text-muted small'>No se pudieron cargar tus reseñas.</div>";
             });
     }
 

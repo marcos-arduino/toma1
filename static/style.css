@@ -7,6 +7,52 @@
     z-index: 1030;
 }
 
+/* Responsive navbar layout to keep user dropdown visible */
+.navbar .container-xl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: nowrap; /* keep everything on one row */
+}
+.navbar .container-xl > form {
+    flex: 1 1 auto;
+    min-width: 0; /* allow input shrink */
+}
+/* Keep brand and user controls from stretching */
+.navbar .container-xl > .navbar-brand,
+.navbar .container-xl > .d-flex { flex: 0 0 auto; }
+/* also allow the right controls to shrink content if needed */
+.navbar .container-xl > .d-flex { min-width: 0; }
+
+/* Compact spacing on small screens but keep single row */
+@media (max-width: 768px) {
+  .navbar .container-xl { gap: .5rem; }
+}
+
+/* Extra compact navbar controls for very small screens */
+@media (max-width: 640px) {
+  .navbar .btn { padding: .3rem .55rem; font-size: .9rem; }
+  .navbar .dropdown-toggle { padding-right: .6rem; padding-left: .6rem; }
+  .navbar .form-control.buscar { padding-top: .35rem; padding-bottom: .35rem; font-size: .95rem; }
+}
+
+/* Ultra-small screens: further constrain search to prevent overflow */
+@media (max-width: 380px) {
+  .navbar .container-xl { gap: .35rem; }
+  .navbar .container-xl > form { flex: 1 1 100px; max-width: 50vw; }
+  .navbar .form-control.buscar { padding-top: .3rem; padding-bottom: .3rem; font-size: .9rem; min-width: 0; }
+  /* override Bootstrap margin utility to save space */
+  .navbar .form-control.me-2 { margin-right: .25rem !important; }
+  /* shrink brand logo further */
+  .navbar .container-xl > .navbar-brand img { width: 32px; height: 32px; }
+  /* if needed, reduce button padding more */
+  .navbar .btn { padding: .28rem .5rem; font-size: .85rem; }
+}
+
+/* Global box-sizing to avoid cumulative width issues */
+*, *::before, *::after { box-sizing: border-box; }
+
 .navbar:hover {
     opacity: 1;
 }
@@ -50,7 +96,7 @@
 }
 
 .buscar {
-    width: 20rem;
+    width: 100%; /* fill available space inside flexing form */
     border-radius: 20px;
 }
 
@@ -66,6 +112,14 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+.navbar-titulo .brand-text { white-space: nowrap; }
+
+/* Hide brand text on very small screens, keep only the logo */
+@media (max-width: 640px) {
+  .navbar-titulo .brand-text { display: none; }
+  .navbar .container-xl { gap: .5rem; }
+  .navbar .container-xl > .navbar-brand img { width: 40px; height: 40px; }
 }
 
 /* Global dark theme */
@@ -234,6 +288,47 @@ h1, h2, h3, h4, h5 {
     .movie-detail { grid-template-columns: 300px 1fr; }
 }
 
+/* Movie summary hero with low-opacity backdrop */
+.movie-hero {
+    position: relative;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    /* full-bleed across the viewport */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* pull background up to sit directly under navbar (main has py-4 ≈ 1.5rem) */
+    margin-top: -1.5rem;
+}
+.movie-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      /* stronger at top, fade to 0 at bottom */
+      linear-gradient(to bottom, rgba(11,15,20,0.65) 0%, rgba(11,15,20,0.45) 45%, rgba(11,15,20,0.2) 75%, rgba(11,15,20,0) 100%),
+      var(--backdrop-url);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.55; /* slightly higher visibility */
+    pointer-events: none;
+    z-index: 0;
+}
+.movie-hero > .container-xl { position: relative; z-index: 1; padding-top: 1.5rem; }
+.movie-hero > .container-xl > .movie-detail { padding: 1rem; }
+@media (min-width: 576px) { .movie-hero > .container-xl > .movie-detail { padding: 1.25rem; } }
+@media (min-width: 768px) { .movie-hero > .container-xl > .movie-detail { padding: 1.5rem; } }
+
+/* remove gap between hero and the divider below */
+.movie-hero + hr { margin-top: 0; }
+
+/* On ultra small screens, keep full-bleed without causing layout jitter */
+@media (max-width: 380px) {
+  /* keep content-driven height; no forced min-height */
+}
+
 /* Primary button styled with site accent */
 .btn-primary {
     background-color: #00e054;
@@ -352,4 +447,25 @@ h1, h2, h3, h4, h5 {
     border-color: #00e054;
     box-shadow: 0 0 0 .2rem rgba(0,224,84,0.15);
     color: #dfe6ee;
+}
+
+/* Footer */
+.site-footer {
+    background-color: #14181c;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 2rem;
+}
+.site-footer .text-footer {
+    color: #9ab;
+}
+.site-footer .footer-links li + li {
+    margin-top: .25rem;
+}
+.site-footer .footer-links a {
+    color: #9ab;
+    text-decoration: none;
+}
+.site-footer .footer-links a:hover {
+    color: #dfe6ee;
+    text-decoration: underline;
 }

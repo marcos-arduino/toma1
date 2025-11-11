@@ -16,7 +16,7 @@
             <div class="container-xl py-2">
                 <a class="navbar-brand navbar-titulo" href="{{url_for('home')}}">
                     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="50" height="50" class="d-inline-block align-text-top" />
-                    TomaUNO
+                    <span class="brand-text">TomaUNO</span>
                 </a>
 
                 <form class="d-flex" role="search" onsubmit="return buscarRedirect(event)">
@@ -24,9 +24,6 @@
                 </form>
 
                 <div class="d-flex align-items-end">
-                    <span id="online-users" class="badge bg-success me-3" style="font-size: 0.9rem;">
-                        <span id="user-count">0</span> en línea
-                    </span>
                     <button id="btn-login" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalLogin">Iniciar sesión</button>
                     <div id="user-menu" class="dropdown d-none ms-2">
                         <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">Mi cuenta</button>
@@ -111,6 +108,43 @@
                 </div>
             </div>
         </main>
+
+        <footer class="site-footer">
+            <div class="container-xl py-4">
+                <div class="row gy-3 align-items-start">
+                    <div class="col-12 col-md-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="36" height="36" />
+                            <span class="fw-bold text-light">TomaUNO</span>
+                        </div>
+                        <p class="mb-2 small text-footer">Descubre, califica y reseña películas.</p>
+                        <span class="badge bg-success">
+                            <span id="user-count">0</span> en línea
+                        </span>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <h6 class="text-light mb-2">Navegación</h6>
+                        <ul class="list-unstyled mb-0 footer-links">
+                            <li><a href="{{ url_for('home') }}">Inicio</a></li>
+                            <li><a href="{{ url_for('ver_peliculas', tipo='popular') }}">Populares</a></li>
+                            <li><a href="{{ url_for('ver_peliculas', tipo='top_rated') }}">Mejor valoradas</a></li>
+                            <li><a href="{{ url_for('ver_peliculas', tipo='now_playing') }}">En cines</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <h6 class="text-light mb-2">Contacto</h6>
+                        <ul class="list-unstyled mb-0 footer-links">
+                            <li><a href="mailto:contacto@tomauno.app">contacto@tomauno.app</a></li>
+                            <li><a href="#">Términos y privacidad</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom mt-4 pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                    <small class="text-footer">© <span id="year"></span> TomaUNO. Todos los derechos reservados.</small>
+                    <small class="text-footer">Hecho con <span class="accent">❤</span> para cinéfilos.</small>
+                </div>
+            </div>
+        </footer>
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             (function () {
@@ -164,6 +198,11 @@
                 }
                 return false;
             }
+            // Footer year init
+            (function(){
+                const y = document.getElementById('year');
+                if (y) y.textContent = new Date().getFullYear();
+            })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         <script src="{{url_for('static', filename='login.js')}}"></script>

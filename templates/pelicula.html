@@ -1,19 +1,24 @@
 {% extends 'base.html' %} {% block title %}Película{% endblock %} {% block content %}
 <section id="pelicula" class="mt-2">
-    <div class="movie-detail">
-        <div>
-            <img id="imagen" class="movie-poster" alt="Poster de la película" />
+    <div class="movie-hero">
+      <div class="container-xl">
+        <div class="movie-detail">
+          <div>
+              <img id="imagen" class="movie-poster" alt="Poster de la película" />
+          </div>
+          <div>
+              <h1 id="titulo" class="mb-3"></h1>
+              <p id="descripcion" class="lead"></p>
+              <div class="mt-3">
+                  <div class="mb-1"><span class="muted">Lanzamiento:</span> <span id="fecha"></span></div>
+                  <div class="mb-1"><span class="muted">Duración:</span> <span id="duracion"></span> <span class="muted">min</span></div>
+                  <div class="mb-1"><span class="muted">Géneros:</span> <span id="generos"></span></div>
+                  <div class="mb-1"><span class="muted">Elenco:</span> <span id="elenco"></span></div>
+                  <div class="mb-1"><span class="muted">Puntuación:</span> <span id="puntuacion" class="accent"></span></div>
+              </div>
+          </div>
         </div>
-        <div>
-            <h1 id="titulo" class="mb-3"></h1>
-            <p id="descripcion" class="lead"></p>
-            <div class="mt-3">
-                <div class="mb-1"><span class="muted">Lanzamiento:</span> <span id="fecha"></span></div>
-                <div class="mb-1"><span class="muted">Duración:</span> <span id="duracion"></span> <span class="muted">min</span></div>
-                <div class="mb-1"><span class="muted">Géneros:</span> <span id="generos"></span></div>
-                <div class="mb-1"><span class="muted">Puntuación:</span> <span id="puntuacion" class="accent"></span></div>
-            </div>
-        </div>
+      </div>
     </div>
     
     <hr class="my-4" />
@@ -69,11 +74,20 @@
 
             document.getElementById("titulo").textContent = p.title;
             document.getElementById("descripcion").textContent = p.overview;
-            document.getElementById("fecha").textContent = p.release_date;
+            document.getElementById("fecha").textContent = formatDateDMY(p.release_date);
             document.getElementById("duracion").textContent = p.runtime;
             document.getElementById("generos").textContent = p.genres.join(", ");
             document.getElementById("puntuacion").textContent = p.vote_average;
             document.getElementById("imagen").src = p.imageUrl;
+            if (p.backdropUrl) {
+                const hero = document.querySelector('.movie-hero');
+                if (hero) {
+                    hero.style.setProperty('--backdrop-url', `url('${p.backdropUrl}')`);
+                }
+            }
+            if (Array.isArray(p.cast) && p.cast.length) {
+                document.getElementById("elenco").textContent = p.cast.slice(0,3).join(", ");
+            }
         } catch (err) {
             console.error("Error cargando película:", err);
         }
@@ -128,6 +142,19 @@
         renderStars(wrap, current);
     }
 
+    function formatDateDMY(value) {
+        try {
+            const d = new Date(value);
+            if (isNaN(d)) return value || '';
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
+        } catch {
+            return value || '';
+        }
+    }
+
     async function cargarReviews() {
         try {
             const res = await fetch(`${API}/reviews/${movieId}`);
@@ -142,7 +169,7 @@
                         <div class="review-rating">${Number(r.rating).toFixed(1)} ★</div>
                         <div>
                             <div class="fw-semibold">${r.titulo || '(Sin título)'}</div>
-                            <div class="small muted">por ${r.usuario || 'Anónimo'} · ${new Date(r.fecha).toLocaleDateString()}</div>
+                            <div class="small muted">por ${r.usuario || 'Anónimo'} · ${formatDateDMY(r.fecha)}</div>
                             <div class="mt-1">${(r.comentario || '').replace(/</g,'&lt;')}</div>
                         </div>
                     </div>`;
