@@ -1,0 +1,116 @@
+/* Detail page layout */
+.movie-detail {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .movie-detail { grid-template-columns: 300px 1fr; }
+}
+
+/* Movie summary hero with low-opacity backdrop */
+.movie-hero {
+    position: relative;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    /* full-bleed across the viewport */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* pull background up to sit directly under navbar (main has py-4 ≈ 1.5rem) */
+    margin-top: -1.5rem;
+}
+.movie-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      /* top fade to background */
+      linear-gradient(to bottom, #0b0f14 0%, rgba(11,15,20,0.85) 6%, rgba(11,15,20,0.5) 14%, rgba(11,15,20,0.25) 22%, rgba(11,15,20,0) 35%),
+      /* bottom fade to background */
+      linear-gradient(to top, #0b0f14 0%, rgba(11,15,20,0.85) 6%, rgba(11,15,20,0.5) 14%, rgba(11,15,20,0.25) 22%, rgba(11,15,20,0) 35%),
+      var(--backdrop-url);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+}
+.movie-hero > .container-xl { position: relative; z-index: 1; padding-top: 1.5rem; }
+.movie-hero > .container-xl > .movie-detail { padding: 1rem; }
+@media (min-width: 576px) { .movie-hero > .container-xl > .movie-detail { padding: 1.25rem; } }
+@media (min-width: 768px) { .movie-hero > .container-xl > .movie-detail { padding: 1.5rem; } }
+
+/* remove gap between hero and the divider below */
+.movie-hero + hr { margin-top: 0; }
+
+/* On ultra small screens, keep full-bleed without causing layout jitter */
+@media (max-width: 380px) {
+  /* keep content-driven height; no forced min-height */
+}
+
+.movie-poster {
+    width: 100%;
+    max-width: 380px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Rating widget */
+.rating {
+    display: flex;
+    gap: 6px;
+    font-size: 36px;
+    line-height: 1;
+    user-select: none;
+    cursor: pointer;
+    margin-top: .25rem;
+}
+.rating .star {
+    display: inline-block;
+    position: relative;
+    color: rgba(223,230,238,0.35);
+    transition: color .15s ease, opacity .15s ease;
+}
+.rating .star.filled { color: #f5c518; }
+.rating .star.half { color: rgba(223,230,238,0.35); }
+.rating .star.half::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: #f5c518;
+}
+
+/* Reviews list */
+.review-item {
+    background: #14181c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: .75rem .9rem;
+}
+.review-rating {
+    color: #f5c518;
+    font-weight: 600;
+    min-width: 56px;
+}
+
+/* Review form */
+.review-form .form-control {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+    border-radius: 20px;
+}
+.review-form .form-control::placeholder { color: rgba(223,230,238,0.6); }
+.review-form .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #00e054;
+    box-shadow: 0 0 0 .2rem rgba(0,224,84,0.15);
+    color: #dfe6ee;
+}

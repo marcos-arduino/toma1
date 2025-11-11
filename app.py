@@ -163,7 +163,6 @@ def api_pelicula(movie_id):
         resp.raise_for_status()
         data = resp.json()
 
-        # Obtener créditos para elenco principal (top 3)
         cast_names = []
         try:
             credits = requests.get(
@@ -201,62 +200,6 @@ def api_pelicula(movie_id):
             "status": "error",
             "message": str(e)
         }), 500
-
-@socketio.on("connect")
-def handle_connect():
-    client_id = request.sid
-    connected_clients.add(client_id)
-    print(f"Cliente conectado: {client_id}")
-    print(f"Total de clientes conectados: {len(connected_clients)}")
-    
-    # Enviar mensaje de bienvenida al cliente que se acaba de conectar
-    emit("welcome", {
-        "message": "Conectado al servidor",
-        "your_id": client_id,
-        "total_clients": len(connected_clients)
-    })
-    
-    # Notificar a todos los clientes sobre el nuevo conteo
-    emit("online_count", {
-        "count": len(connected_clients),
-        "clients": list(connected_clients)
-    }, broadcast=True)
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    client_id = request.sid
-    connected_clients.discard(client_id)
-    print(f"Cliente desconectado: {client_id}")
-    print(f"Total de clientes conectados: {len(connected_clients)}")
-    
-    # Notificar a todos los clientes sobre el nuevo conteo
-    socketio.emit("online_count", {
-        "count": len(connected_clients),
-        "clients": list(connected_clients)
-    })
-
-@socketio.on("ping")
-def handle_ping(data):
-    emit("pong", {"message": "pong"})
-
-@socketio.on("chat_message")
-def handle_chat_message(data):
-    client_id = request.sid
-    message_text = data.get("text", "")
-    print(f"Mensaje de {client_id}: {message_text}")
-    
-    # Reemite el mensaje a todos los clientes conectados
-    emit("chat_message", {
-        "from": client_id,
-        "text": message_text,
-        "timestamp": data.get("timestamp")
-    }, broadcast=True)
-
-@app.route("/api/broadcast-test", methods=["GET"])
-def broadcast_test():
-    # Emite un mensaje de prueba a todos los clientes conectados
-    socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
-    return jsonify({"status": "ok"}), 200
 
 @app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
 def agregar_pelicula_lista(pelicula_id):
@@ -387,6 +330,66 @@ def buscar_peliculas():
             "status": "error",
             "message": str(e)
         }), 500
+
+
+# -- SOCKETIO --
+
+@socketio.on("connect")
+def handle_connect():
+    client_id = request.sid
+    connected_clients.add(client_id)
+    print(f"Cliente conectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Enviar mensaje de bienvenida al cliente que se acaba de conectar
+    emit("welcome", {
+        "message": "Conectado al servidor",
+        "your_id": client_id,
+        "total_clients": len(connected_clients)
+    })
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    }, broadcast=True)
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    client_id = request.sid
+    connected_clients.discard(client_id)
+    print(f"Cliente desconectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    socketio.emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    })
+
+@socketio.on("ping")
+def handle_ping(data):
+    emit("pong", {"message": "pong"})
+
+@socketio.on("chat_message")
+def handle_chat_message(data):
+    client_id = request.sid
+    message_text = data.get("text", "")
+    print(f"Mensaje de {client_id}: {message_text}")
+    
+    # Reemite el mensaje a todos los clientes conectados
+    emit("chat_message", {
+        "from": client_id,
+        "text": message_text,
+        "timestamp": data.get("timestamp")
+    }, broadcast=True)
+
+@app.route("/api/broadcast-test", methods=["GET"])
+def broadcast_test():
+    # Emite un mensaje de prueba a todos los clientes conectados
+    socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
+    return jsonify({"status": "ok"}), 200
+
 
 
 

@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Película{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Película{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pelicula.css') }}">{% endblock %} {% block content %}
 <section id="pelicula" class="mt-2">
     <div class="movie-hero">
       <div class="container-xl">

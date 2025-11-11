@@ -1,5 +1,4 @@
-{% extends 'base.html' %} {% block title %}Home{% endblock %} {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+{% extends 'base.html' %} {% block title %}Home{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">{% endblock %} {% block content %}
 
 <section class="index-hero">
     <div class="container-xl">

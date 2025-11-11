@@ -1,0 +1,4 @@
+/* Estilos específicos para la página de búsqueda. */
+#resultados .card { border: 1px solid rgba(255, 255, 255, 0.06); }
+#resultados .card-img-overlay { display: flex; flex-direction: column; justify-content: end; }
+#resultados .card-title { color: #fff; font-weight: 600; }

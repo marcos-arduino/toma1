@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Películas{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Películas{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/grid.css') }}">{% endblock %} {% block content %}
 <section>
     <h2 class="mb-3" id="tituloPeliculas"></h2>
     <div class="poster-grid" id="peliculas"></div>
