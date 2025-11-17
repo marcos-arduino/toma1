@@ -272,6 +272,10 @@ def login():
     if not usuario:
         return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
 
+    # Bloquear login si el usuario está dado de baja
+    if not usuario.get("activo", True):
+        return jsonify({"status": "error", "message": "Usuario desactivado. Contacte al administrador."}), 403
+
     if not bcrypt.check_password_hash(usuario["contrasena_hash"], contrasena):
         return jsonify({"status": "error", "message": "Contraseña incorrecta"}), 401
 
@@ -281,9 +285,53 @@ def login():
         "user": {
             "id": usuario["id"],
             "nombre": usuario["nombre"],
-            "email": usuario["email"]
+            "email": usuario["email"],
+            "es_admin": usuario.get("es_admin", False),
+            "activo": usuario.get("activo", True)
         }
     }), 200
+
+
+@app.route("/api/admin/usuarios", methods=["GET"])
+def admin_listar_usuarios():
+    """Lista todos los usuarios. Requiere un admin_id válido y administrador."""
+    admin_id = request.args.get("admin_id", type=int)
+    if not admin_id:
+        return jsonify({"status": "error", "message": "admin_id requerido"}), 400
+
+    admin = db.buscar_usuario_por_id(admin_id)
+    if not admin or not admin.get("es_admin", False):
+        return jsonify({"status": "error", "message": "No autorizado"}), 403
+
+    usuarios = db.listar_usuarios()
+    return jsonify({
+        "status": "success",
+        "total": len(usuarios),
+        "data": usuarios
+    }), 200
+
+
+@app.route("/api/admin/usuarios/<int:user_id>/desactivar", methods=["POST"])
+def admin_desactivar_usuario(user_id):
+    """Da de baja lógica a un usuario (activo = FALSE). Requiere admin_id admin."""
+    data = request.json or {}
+    admin_id = data.get("admin_id")
+    if not admin_id:
+        return jsonify({"status": "error", "message": "admin_id requerido"}), 400
+
+    admin = db.buscar_usuario_por_id(int(admin_id))
+    if not admin or not admin.get("es_admin", False):
+        return jsonify({"status": "error", "message": "No autorizado"}), 403
+
+    if int(admin_id) == int(user_id):
+        return jsonify({"status": "error", "message": "Un admin no puede desactivarse a sí mismo"}), 400
+
+    usuario = db.buscar_usuario_por_id(user_id)
+    if not usuario:
+        return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
+
+    db.desactivar_usuario(user_id)
+    return jsonify({"status": "success", "message": "Usuario desactivado"}), 200
 
 @app.route("/api/buscar", methods=["GET"])
 def buscar_peliculas():
