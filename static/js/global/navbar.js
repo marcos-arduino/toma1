@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const btnLogin = document.getElementById("btn-login");
+    const btnLoginHero = document.getElementById("btn-login-hero");
     const userMenu = document.getElementById("user-menu");
     const btnLogout = document.getElementById("btn-logout");
     const userMenuButton = userMenu?.querySelector(".dropdown-toggle");
@@ -9,10 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (token && usuario) {
         btnLogin.classList.add("d-none");
+        if (btnLoginHero) btnLoginHero.classList.add("d-none");
         userMenu.classList.remove("d-none");
         if (userMenuButton) userMenuButton.textContent = usuario.nombre || "Mi cuenta";
     } else {
         btnLogin.classList.remove("d-none");
+        if (btnLoginHero) btnLoginHero.classList.remove("d-none");
         userMenu.classList.add("d-none");
     }
 

@@ -1,4 +1,3 @@
-
 from sqlalchemy import text, create_engine
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
@@ -13,7 +12,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nombre VARCHAR(100) NOT NULL,
   email VARCHAR(150) UNIQUE NOT NULL,
   contrasena_hash TEXT NOT NULL,
-  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  es_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS directores (
@@ -59,9 +60,13 @@ CREATE TABLE IF NOT EXISTS reviews (
   id_usuario INT REFERENCES usuarios(id) ON DELETE CASCADE,
   id_pelicula INT REFERENCES peliculas(id) ON DELETE CASCADE,
   rating NUMERIC(3,1),
+  titulo VARCHAR(150),
   comentario TEXT,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ensure titulo exists if table already created without it
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS titulo VARCHAR(150);
 
 CREATE TABLE IF NOT EXISTS lista_usuario (
     id_usuario INT REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -71,6 +76,10 @@ CREATE TABLE IF NOT EXISTS lista_usuario (
     fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_usuario, id_pelicula)
 );
+ 
+-- asegurar columnas para esquemas antiguos
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS es_admin BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TRUE;
 """
 
 with engine.begin() as conn:
@@ -92,6 +101,48 @@ def agregar_pelicula(titulo, anio, duracion, sinopsis, id_director):
         })
         return result.scalar()
 
+def crear_review(id_usuario, id_pelicula, rating, titulo, comentario):
+    query = text("""
+        INSERT INTO reviews (id_usuario, id_pelicula, rating, titulo, comentario)
+        VALUES (:id_usuario, :id_pelicula, :rating, :titulo, :comentario)
+        RETURNING id;
+    """)
+    with engine.begin() as conn:
+        result = conn.execute(query, {
+            "id_usuario": id_usuario,
+            "id_pelicula": id_pelicula,
+            "rating": rating,
+            "titulo": titulo,
+            "comentario": comentario,
+        })
+        return result.scalar()
+
+def listar_reviews_por_pelicula(id_pelicula):
+    query = text("""
+        SELECT r.id, r.id_usuario, r.id_pelicula, r.rating, r.titulo, r.comentario, r.fecha,
+               u.nombre AS usuario
+        FROM reviews r
+        LEFT JOIN usuarios u ON u.id = r.id_usuario
+        WHERE r.id_pelicula = :id_pelicula
+        ORDER BY r.fecha DESC
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_pelicula": id_pelicula}).mappings().fetchall()
+        return [dict(row) for row in rows]
+
+def listar_reviews_por_usuario(id_usuario):
+    query = text("""
+        SELECT r.id, r.id_usuario, r.id_pelicula, r.rating, r.titulo, r.comentario, r.fecha,
+               p.titulo AS titulo_pelicula
+        FROM reviews r
+        LEFT JOIN peliculas p ON p.id = r.id_pelicula
+        WHERE r.id_usuario = :id_usuario
+        ORDER BY r.fecha DESC
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_usuario": id_usuario}).mappings().fetchall()
+        return [dict(row) for row in rows]
+
 def listar_peliculas():
     query = text("""
         SELECT p.id, p.titulo, p.anio, d.nombre AS director
@@ -102,6 +153,15 @@ def listar_peliculas():
     with engine.connect() as conn:
         result = conn.execute(query)
         return [dict(row) for row in result.mappings()]
+
+def upsert_pelicula_minima(id_pelicula, titulo, anio=None):
+    query = text("""
+        INSERT INTO peliculas (id, titulo, anio)
+        VALUES (:id, :titulo, :anio)
+        ON CONFLICT (id) DO NOTHING;
+    """)
+    with engine.begin() as conn:
+        conn.execute(query, {"id": id_pelicula, "titulo": titulo, "anio": anio})
 
 def buscar_pelicula_por_titulo(nombre):
     query = text("""
@@ -141,6 +201,48 @@ def agregar_a_lista(id_usuario, id_pelicula, titulo, poster_url):
         VALUES (:id_usuario, :id_pelicula, :titulo, :poster_url)
         ON CONFLICT (id_usuario, id_pelicula) DO NOTHING
     """)
+def buscar_usuario_por_id(user_id: int):
+    query = text("SELECT * FROM usuarios WHERE id = :id")
+    with engine.connect() as conn:
+        result = conn.execute(query, {"id": user_id}).mappings().fetchone()
+        return result
+
+def listar_usuarios():
+    query = text(
+        """
+        SELECT id, nombre, email, fecha_registro, es_admin, activo
+        FROM usuarios
+        ORDER BY fecha_registro DESC;
+        """
+    )
+    with engine.connect() as conn:
+        rows = conn.execute(query).mappings().fetchall()
+        return [dict(row) for row in rows]
+
+def desactivar_usuario(user_id: int):
+    query = text(
+        """
+        UPDATE usuarios
+        SET activo = FALSE
+        WHERE id = :id;
+        """
+    )
+    with engine.begin() as conn:
+        conn.execute(query, {"id": user_id})
+
+# --- Lista de usuario (favoritos / mi lista) ---
+def agregar_a_lista(id_usuario: int, id_pelicula: int, titulo: str, poster_url: str | None = None):
+    """Inserta o actualiza una película en la lista del usuario."""
+    query = text(
+        """
+        INSERT INTO lista_usuario (id_usuario, id_pelicula, titulo, poster_url)
+        VALUES (:id_usuario, :id_pelicula, :titulo, :poster_url)
+        ON CONFLICT (id_usuario, id_pelicula) DO UPDATE
+        SET titulo = EXCLUDED.titulo,
+            poster_url = EXCLUDED.poster_url,
+            fecha_agregado = CURRENT_TIMESTAMP;
+        """
+    )
     with engine.begin() as conn:
         conn.execute(query, {
             "id_usuario": id_usuario,
@@ -169,6 +271,28 @@ def obtener_lista_usuario(id_usuario):
         WHERE id_usuario = :id_usuario
         ORDER BY fecha_agregado DESC
     """)
+            "poster_url": poster_url,
+        })
+
+def eliminar_de_lista(id_usuario: int, id_pelicula: int):
+    query = text(
+        """
+        DELETE FROM lista_usuario
+        WHERE id_usuario = :id_usuario AND id_pelicula = :id_pelicula;
+        """
+    )
+    with engine.begin() as conn:
+        conn.execute(query, {"id_usuario": id_usuario, "id_pelicula": id_pelicula})
+
+def obtener_lista_usuario(id_usuario: int):
+    query = text(
+        """
+        SELECT id_pelicula AS id, titulo, poster_url, fecha_agregado
+        FROM lista_usuario
+        WHERE id_usuario = :id_usuario
+        ORDER BY fecha_agregado DESC;
+        """
+    )
     with engine.connect() as conn:
         rows = conn.execute(query, {"id_usuario": id_usuario}).mappings().fetchall()
         return [dict(row) for row in rows]

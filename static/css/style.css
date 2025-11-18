@@ -1,0 +1,442 @@
+.navbar {
+    background-color: #14181c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+/* Responsive navbar layout to keep user dropdown visible */
+.navbar .container-xl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: nowrap; /* keep everything on one row */
+}
+.navbar .container-xl > form {
+    flex: 1 1 auto;
+    min-width: 0; /* allow input shrink */
+}
+/* Keep brand and user controls from stretching */
+.navbar .container-xl > .navbar-brand,
+.navbar .container-xl > .d-flex {
+    flex: 0 0 auto;
+}
+/* also allow the right controls to shrink content if needed */
+.navbar .container-xl > .d-flex {
+    min-width: 0;
+}
+
+/* Compact spacing on small screens but keep single row */
+@media (max-width: 768px) {
+    .navbar .container-xl {
+        gap: 0.5rem;
+    }
+}
+
+/* Extra compact navbar controls for very small screens */
+@media (max-width: 640px) {
+    .navbar .btn {
+        padding: 0.3rem 0.55rem;
+        font-size: 0.9rem;
+    }
+    .navbar .dropdown-toggle {
+        padding-right: 0.6rem;
+        padding-left: 0.6rem;
+    }
+    .navbar .form-control.buscar {
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Ultra-small screens: further constrain search to prevent overflow */
+@media (max-width: 380px) {
+    .navbar .container-xl {
+        gap: 0.35rem;
+    }
+    .navbar .container-xl > form {
+        flex: 1 1 100px;
+        max-width: 50vw;
+    }
+    .navbar .form-control.buscar {
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+        font-size: 0.9rem;
+        min-width: 0;
+    }
+    /* override Bootstrap margin utility to save space */
+    .navbar .form-control.me-2 {
+        margin-right: 0.25rem !important;
+    }
+    /* shrink brand logo further */
+    .navbar .container-xl > .navbar-brand img {
+        width: 32px;
+        height: 32px;
+    }
+    /* if needed, reduce button padding more */
+    .navbar .btn {
+        padding: 0.28rem 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Global box-sizing to avoid cumulative width issues */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.navbar:hover {
+    opacity: 1;
+}
+
+.navbar .navbar-brand,
+.navbar .form-control,
+.navbar .btn {
+    opacity: 1;
+    color: #dfe6ee;
+}
+
+.navbar .form-control {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.navbar .form-control::placeholder {
+    color: rgba(223, 230, 238, 0.6);
+}
+
+.navbar .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: #00e054;
+    outline: none;
+}
+
+.navbar .btn-outline-success,
+.navbar .btn-outline-light {
+    color: #dfe6ee;
+    border-color: rgba(223, 230, 238, 0.4);
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.navbar .btn-outline-success:hover,
+.navbar .btn-outline-light:hover {
+    background-color: #00e054;
+    color: #0b0f14;
+    border-color: #00e054;
+}
+
+.buscar {
+    width: 100%; /* fill available space inside flexing form */
+    border-radius: 20px;
+}
+
+/* Make all Bootstrap buttons consistently rounded like the search bar */
+.btn {
+    border-radius: 20px;
+}
+.btn-sm {
+    border-radius: 18px;
+}
+.btn-lg {
+    border-radius: 24px;
+}
+
+.navbar-titulo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.navbar-titulo .brand-text {
+    white-space: nowrap;
+}
+
+/* Hide brand text on very small screens, keep only the logo */
+@media (max-width: 640px) {
+    .navbar-titulo .brand-text {
+        display: none;
+    }
+    .navbar .container-xl {
+        gap: 0.5rem;
+    }
+    .navbar .container-xl > .navbar-brand img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Global dark theme */
+body {
+    background-color: #0b0f14;
+    color: #9ab;
+    font-family: "Rubik", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    color: #dfe6ee;
+}
+
+/* Poster grid helpers */
+.poster-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .poster-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 768px) {
+    .poster-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+@media (min-width: 992px) {
+    .poster-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+.poster-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #14181c;
+}
+
+.poster-card img.poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.9);
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.poster-card:hover img.poster {
+    transform: translateY(-2px) scale(1.02);
+    filter: saturate(1);
+}
+
+/* square add-to-list button in top-right */
+.btn-add {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: rgba(20, 24, 28, 0.75);
+    border: 1px solid rgba(223, 230, 238, 0.25);
+    color: #dfe6ee;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    z-index: 3;
+    pointer-events: auto;
+}
+
+.btn-add:hover {
+    background: #00e054;
+    color: #0b0f14;
+    border-color: #00e054;
+}
+
+.poster-card:hover .btn-add {
+    opacity: 1;
+    visibility: visible;
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #ffffff;
+    justify-content: end;
+}
+
+.card-img-overlay {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    padding: 0.2rem;
+}
+
+.poster-card:hover .card-img-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.modal-content {
+    color: #dfe6ee;
+    background-color: #14181c;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+    border-radius: 10px;
+}
+
+/* Modal sizing and spacing */
+.modal .modal-dialog {
+    max-width: 520px;
+}
+.modal .modal-body {
+    padding-top: 0.75rem;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.modal-title {
+    color: #dfe6ee;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%);
+    opacity: 0.8;
+}
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* Inputs dentro del modal: coherentes con tema oscuro */
+.modal .form-label {
+    color: #dfe6ee;
+}
+.modal .form-control {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #dfe6ee;
+    border-radius: 20px;
+}
+.modal .form-control::placeholder {
+    color: rgba(223, 230, 238, 0.6);
+}
+.modal .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #00e054;
+    box-shadow: 0 0 0 0.2rem rgba(0, 224, 84, 0.15);
+    color: #dfe6ee;
+}
+
+/* Extra spacing in login modal between password and submit */
+#formLogin .mb-3:last-of-type {
+    margin-bottom: 1rem;
+}
+#loginMsg {
+    margin-bottom: 1rem;
+}
+
+/* Backdrop más sutil y acorde al tema */
+.modal-backdrop.show {
+    opacity: 0.75;
+}
+
+/* Primary button styled with site accent */
+.btn-primary {
+    background-color: #00e054;
+    border-color: #00e054;
+    color: #0b0f14;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #06c84b;
+    border-color: #06c84b;
+    color: #0b0f14;
+}
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 224, 84, 0.25);
+}
+
+/* Success button aligned with accent (e.g., "Registrarse") */
+.btn-success {
+    background-color: #00e054;
+    border-color: #00e054;
+    color: #0b0f14;
+}
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #06c84b;
+    border-color: #06c84b;
+    color: #0b0f14;
+}
+.btn-success:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 224, 84, 0.25);
+}
+
+/* Links dentro del modal en color acorde */
+.modal .btn-link.text-info {
+    color: #63e6a5;
+}
+.modal .btn-link.text-info:hover {
+    color: #00e054;
+}
+
+.muted {
+    color: #9ab;
+}
+
+.accent {
+    color: #00e054;
+}
+
+/* Footer */
+.site-footer {
+    background-color: #14181c;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 2rem;
+}
+.site-footer .text-footer {
+    color: #9ab;
+}
+.site-footer .footer-links li + li {
+    margin-top: 0.25rem;
+}
+.site-footer .footer-links a {
+    color: #9ab;
+    text-decoration: none;
+    overflow-wrap: anywhere; /* allow breaking long words like emails/URLs */
+    word-break: break-word;  /* fallback */
+    hyphens: auto;           /* hyphenation when available */
+}
+.site-footer .footer-links a:hover {
+    color: #dfe6ee;
+    text-decoration: underline;
+}
+
+/* Ensure footer container can wrap content on small screens */
+.site-footer .container-xl {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+.site-footer .row { min-width: 0; }
+.site-footer .footer-links { min-width: 0; }
+@media (min-width: 768px) {
+  .site-footer .container-xl { flex-direction: column; }
+}

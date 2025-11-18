@@ -1,48 +1,8 @@
-{% extends 'base.html' %} {% block title %}Buscar películas{% endblock %} {% block content %}
-<div class="container mt-4">
-    <h2>Resultados de búsqueda</h2>
-    <div id="resultados" class="row row-cols-1 row-cols-md-6 g-4 mt-3"></div>
-</div>
+{% extends 'base.html' %} {% block title %}Buscar películas{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/buscar.css') }}">{% endblock %} {% block content %}
+<section class="mt-2">
+    <h2 id="tituloBusqueda" class="mb-3">Resultados de búsqueda</h2>
+    <div id="resultados" class="row row-cols-1 row-cols-md-6 g-4"></div>
+</section>
 {% endblock %} {% block scripts %}
-<script>
-    const API = "http://127.0.0.1:5000/api";
-
-    async function buscarPeliculas(query) {
-        const resp = await fetch(`${API}/buscar?q=${encodeURIComponent(query)}`);
-        const json = await resp.json();
-
-        const lista = document.getElementById("resultados");
-        lista.innerHTML = "";
-
-        if (json.status === "success" && json.data.length > 0) {
-            json.data.forEach((p) => {
-                const col = document.createElement("div");
-                col.classList.add("col");
-
-                const card = document.createElement("div");
-                card.classList.add("card", "text-bg-dark", "mb-3");
-
-                const img = document.createElement("img");
-                img.src = p.imageUrl;
-                img.classList.add("card-img-top");
-                card.appendChild(img);
-
-                const body = document.createElement("div");
-                body.classList.add("card-body");
-                body.innerHTML = `<h5>${p.title}</h5><p>${p.updated}</p>`;
-                card.appendChild(body);
-
-                col.appendChild(card);
-                lista.appendChild(col);
-            });
-        } else {
-            lista.innerHTML = "<p>No se encontraron resultados.</p>";
-        }
-    }
-
-    // Obtener parámetro ?q= de la URL
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
-    if (q) buscarPeliculas(q);
-</script>
+<script type="module" src="{{ url_for('static', filename='js/pages/buscar.js') }}"></script>
 {% endblock %}

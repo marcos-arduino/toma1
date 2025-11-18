@@ -23,7 +23,6 @@ def get_client_ip():
     return request.environ.get('REMOTE_ADDR', 'unknown')
 
 
-
 # --- Configuración TMDB ---
 API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
 TMDB_URL = "https://api.themoviedb.org/3"
@@ -34,36 +33,55 @@ TMDB_URL = "https://api.themoviedb.org/3"
 def home():
     return render_template("index.html")
 
-@app.route("/peliculas-popular")
-def pagina_peliculas_populares():
-    return render_template("test.html")
+@app.route("/peliculas/<string:tipo>")
+def ver_peliculas(tipo):
+    return render_template("grid-peliculas.html", tipo=tipo)
 
 @app.route("/peliculas/<int:movie_id>")
 def pagina_pelicula(movie_id):
     return render_template("pelicula.html", movie_id=movie_id)
 
+@app.route("/buscar")
+def pagina_busqueda():
+    """Página que muestra los resultados de búsqueda."""
+    return render_template("buscar.html")
+
+@app.route("/perfil")
+def pagina_perfil():
+    return render_template("perfil.html")
+
 
 # -------- API REST --------
-@app.route("/api/peliculas-popular", methods=["GET"])
-def api_peliculas():
-    """Devuelve lista de películas populares"""
+@app.route("/api/peliculas/<categoria>", methods=["GET"])
+def api_peliculas_categoria(categoria):
     try:
-        resp = requests.get(f"{TMDB_URL}/movie/popular", params={
+        match categoria:
+            case "popular":
+                endpoint = "movie/popular"
+            case "top_rated":
+                endpoint = "movie/top_rated"
+            case "upcoming":
+                endpoint = "movie/upcoming"
+            case "now_playing":
+                endpoint = "movie/now_playing"
+            case _:
+                return jsonify({"status": "error", "message": "Categoría no válida"}), 400
+
+        resp = requests.get(f"{TMDB_URL}/{endpoint}", params={
             "api_key": API_KEY,
             "language": "es-ES"
         })
         resp.raise_for_status()
         data = resp.json().get("results", [])
 
-        peliculas = []
-        for p in data:
-            peliculas.append({
-                "id": p.get("id"),
-                "title": p.get("title", "Sin título"),
-                "text": p.get("overview", "Sin descripción."),
-                "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
-                "updated": p.get("release_date", "Desconocido")
-            })
+        peliculas = [{
+            "id": p.get("id"),
+            "title": p.get("title", "Sin título"),
+            "text": p.get("overview", "Sin descripción."),
+            "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+            "updated": p.get("release_date", "Desconocido"),
+            "vote_average": p.get("vote_average")
+        } for p in data]
 
         return jsonify({
             "status": "success",
@@ -77,6 +95,7 @@ def api_peliculas():
             "status": "error",
             "message": str(e)
         }), 500
+
 
 
 # -------- REVIEWS --------
@@ -129,6 +148,7 @@ def crear_review(movie_id):
             )
             return jsonify({"status": "error", "message": "Rating inválido"}), 400
         
+            return jsonify({"status": "error", "message": "Rating inválido"}), 400
         # Ensure pelicula exists locally to satisfy FK
         try:
             resp = requests.get(f"{TMDB_URL}/movie/{movie_id}", params={
@@ -189,15 +209,30 @@ def api_pelicula(movie_id):
         resp.raise_for_status()
         data = resp.json()
 
+        cast_names = []
+        try:
+            credits = requests.get(
+                f"{TMDB_URL}/movie/{movie_id}/credits",
+                params={"api_key": API_KEY, "language": "es-ES"}
+            )
+            credits.raise_for_status()
+            cjson = credits.json() or {}
+            cast = cjson.get("cast", [])
+            cast_names = [c.get("name") for c in cast if c.get("name")] [:3]
+        except Exception:
+            cast_names = []
+
         pelicula = {
             "id": data.get("id"),
             "title": data.get("title", "Sin título"),
             "overview": data.get("overview", "Sin descripción disponible."),
             "imageUrl": f"https://image.tmdb.org/t/p/w500{data['poster_path']}" if data.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
+            "backdropUrl": f"https://image.tmdb.org/t/p/w1280{data['backdrop_path']}" if data.get("backdrop_path") else None,
             "release_date": data.get("release_date", "Desconocido"),
             "runtime": data.get("runtime", "N/D"),
             "genres": [g["name"] for g in data.get("genres", [])],
-            "vote_average": data.get("vote_average", "N/D")
+            "vote_average": data.get("vote_average", "N/D"),
+            "cast": cast_names
         }
 
         return jsonify({
@@ -211,62 +246,6 @@ def api_pelicula(movie_id):
             "status": "error",
             "message": str(e)
         }), 500
-
-@socketio.on("connect")
-def handle_connect():
-    client_id = request.sid
-    connected_clients.add(client_id)
-    print(f"Cliente conectado: {client_id}")
-    print(f"Total de clientes conectados: {len(connected_clients)}")
-    
-    # Enviar mensaje de bienvenida al cliente que se acaba de conectar
-    emit("welcome", {
-        "message": "Conectado al servidor",
-        "your_id": client_id,
-        "total_clients": len(connected_clients)
-    })
-    
-    # Notificar a todos los clientes sobre el nuevo conteo
-    emit("online_count", {
-        "count": len(connected_clients),
-        "clients": list(connected_clients)
-    }, broadcast=True)
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    client_id = request.sid
-    connected_clients.discard(client_id)
-    print(f"Cliente desconectado: {client_id}")
-    print(f"Total de clientes conectados: {len(connected_clients)}")
-    
-    # Notificar a todos los clientes sobre el nuevo conteo
-    socketio.emit("online_count", {
-        "count": len(connected_clients),
-        "clients": list(connected_clients)
-    })
-
-@socketio.on("ping")
-def handle_ping(data):
-    emit("pong", {"message": "pong"})
-
-@socketio.on("chat_message")
-def handle_chat_message(data):
-    client_id = request.sid
-    message_text = data.get("text", "")
-    print(f"Mensaje de {client_id}: {message_text}")
-    
-    # Reemite el mensaje a todos los clientes conectados
-    emit("chat_message", {
-        "from": client_id,
-        "text": message_text,
-        "timestamp": data.get("timestamp")
-    }, broadcast=True)
-
-@app.route("/api/broadcast-test", methods=["GET"])
-def broadcast_test():
-    # Emite un mensaje de prueba a todos los clientes conectados
-    socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
-    return jsonify({"status": "ok"}), 200
 
 @app.route("/api/mi-lista/<int:pelicula_id>/", methods=["POST"])
 def agregar_pelicula_lista(pelicula_id):
@@ -475,6 +454,10 @@ def login():
         )
         return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
 
+    # Bloquear login si el usuario está dado de baja
+    if not usuario.get("activo", True):
+        return jsonify({"status": "error", "message": "Usuario desactivado. Contacte al administrador."}), 403
+
     if not bcrypt.check_password_hash(usuario["contrasena_hash"], contrasena):
         audit_log.log_audit_event(
             event_type='LOGIN_FAILED',
@@ -510,9 +493,53 @@ def login():
         "user": {
             "id": usuario["id"],
             "nombre": usuario["nombre"],
-            "email": usuario["email"]
+            "email": usuario["email"],
+            "es_admin": usuario.get("es_admin", False),
+            "activo": usuario.get("activo", True)
         }
     }), 200
+
+
+@app.route("/api/admin/usuarios", methods=["GET"])
+def admin_listar_usuarios():
+    """Lista todos los usuarios. Requiere un admin_id válido y administrador."""
+    admin_id = request.args.get("admin_id", type=int)
+    if not admin_id:
+        return jsonify({"status": "error", "message": "admin_id requerido"}), 400
+
+    admin = db.buscar_usuario_por_id(admin_id)
+    if not admin or not admin.get("es_admin", False):
+        return jsonify({"status": "error", "message": "No autorizado"}), 403
+
+    usuarios = db.listar_usuarios()
+    return jsonify({
+        "status": "success",
+        "total": len(usuarios),
+        "data": usuarios
+    }), 200
+
+
+@app.route("/api/admin/usuarios/<int:user_id>/desactivar", methods=["POST"])
+def admin_desactivar_usuario(user_id):
+    """Da de baja lógica a un usuario (activo = FALSE). Requiere admin_id admin."""
+    data = request.json or {}
+    admin_id = data.get("admin_id")
+    if not admin_id:
+        return jsonify({"status": "error", "message": "admin_id requerido"}), 400
+
+    admin = db.buscar_usuario_por_id(int(admin_id))
+    if not admin or not admin.get("es_admin", False):
+        return jsonify({"status": "error", "message": "No autorizado"}), 403
+
+    if int(admin_id) == int(user_id):
+        return jsonify({"status": "error", "message": "Un admin no puede desactivarse a sí mismo"}), 400
+
+    usuario = db.buscar_usuario_por_id(user_id)
+    if not usuario:
+        return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
+
+    db.desactivar_usuario(user_id)
+    return jsonify({"status": "success", "message": "Usuario desactivado"}), 200
 
 @app.route("/api/buscar", methods=["GET"])
 def buscar_peliculas():
@@ -543,7 +570,8 @@ def buscar_peliculas():
                 "title": p.get("title", "Sin título"),
                 "text": p.get("overview", "Sin descripción."),
                 "imageUrl": f"https://image.tmdb.org/t/p/w500{p['poster_path']}" if p.get("poster_path") else "https://via.placeholder.com/500x750?text=Sin+imagen",
-                "updated": p.get("release_date", "Desconocido")
+                "updated": p.get("release_date", "Desconocido"),
+                "vote_average": p.get("vote_average")
             })
 
         return jsonify({
@@ -654,6 +682,66 @@ def get_audit_statistics_api():
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+# -- SOCKETIO --
+
+@socketio.on("connect")
+def handle_connect():
+    client_id = request.sid
+    connected_clients.add(client_id)
+    print(f"Cliente conectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Enviar mensaje de bienvenida al cliente que se acaba de conectar
+    emit("welcome", {
+        "message": "Conectado al servidor",
+        "your_id": client_id,
+        "total_clients": len(connected_clients)
+    })
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    }, broadcast=True)
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    client_id = request.sid
+    connected_clients.discard(client_id)
+    print(f"Cliente desconectado: {client_id}")
+    print(f"Total de clientes conectados: {len(connected_clients)}")
+    
+    # Notificar a todos los clientes sobre el nuevo conteo
+    socketio.emit("online_count", {
+        "count": len(connected_clients),
+        "clients": list(connected_clients)
+    })
+
+@socketio.on("ping")
+def handle_ping(data):
+    emit("pong", {"message": "pong"})
+
+@socketio.on("chat_message")
+def handle_chat_message(data):
+    client_id = request.sid
+    message_text = data.get("text", "")
+    print(f"Mensaje de {client_id}: {message_text}")
+    
+    # Reemite el mensaje a todos los clientes conectados
+    emit("chat_message", {
+        "from": client_id,
+        "text": message_text,
+        "timestamp": data.get("timestamp")
+    }, broadcast=True)
+
+@app.route("/api/broadcast-test", methods=["GET"])
+def broadcast_test():
+    # Emite un mensaje de prueba a todos los clientes conectados
+    socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
+    return jsonify({"status": "ok"}), 200
+
+
 
 
 if __name__ == "__main__":

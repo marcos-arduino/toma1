@@ -1,50 +1,60 @@
-{% extends 'base.html' %} {% block title %}Película{% endblock %} {% block content %}
-<h1>Detalles de la Película</h1>
-<div id="pelicula" class="container mt-4 text-center">
-    <h2 id="titulo"></h2>
-    <img id="imagen" class="img-fluid mb-3" alt="Poster de la película" />
-    <p id="descripcion" class="lead"></p>
-    <p><strong>Fecha de lanzamiento:</strong> <span id="fecha"></span></p>
-    <p><strong>Duración:</strong> <span id="duracion"></span> minutos</p>
-    <p><strong>Géneros:</strong> <span id="generos"></span></p>
-    <p><strong>Puntuación:</strong> <span id="puntuacion"></span></p>
-</div>
+{% extends 'base.html' %} {% block title %}Película{% endblock %} {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pelicula.css') }}">{% endblock %} {% block content %}
+<section id="pelicula" class="mt-2">
+    <div class="movie-hero">
+      <div class="container-xl">
+        <div class="movie-detail">
+          <div>
+              <img id="imagen" class="movie-poster" alt="Poster de la película" />
+          </div>
+          <div>
+              <h1 id="titulo" class="mb-2"></h1>
+              <div id="addToListWrap" class="mb-3"></div>
+              <p id="descripcion" class="lead"></p>
+              <div class="mt-3">
+                  <div class="mb-1"><span class="muted">Lanzamiento:</span> <span id="fecha"></span></div>
+                  <div class="mb-1"><span class="muted">Duración:</span> <span id="duracion"></span> <span class="muted">min</span></div>
+                  <div class="mb-1"><span class="muted">Géneros:</span> <span id="generos"></span></div>
+                  <div class="mb-1"><span class="muted">Elenco:</span> <span id="elenco"></span></div>
+                  <div class="mb-1"><span class="muted">Puntuación:</span> <span id="puntuacion" class="accent"></span></div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="my-4" />
+
+    <div class="review-box">
+        <h2 class="h4 mb-3">Escribir una reseña</h2>
+        <form id="formReview" class="review-form">
+            <div class="mb-3">
+                <label class="form-label">Tu calificación</label>
+                <div id="ratingWidget" class="rating" aria-label="Calificación de 1 a 10 con medias estrellas"></div>
+                <input type="hidden" id="ratingInput" name="rating" value="0" />
+            </div>
+            <div class="mb-3">
+                <label for="reviewTitle" class="form-label">Título</label>
+                <input id="reviewTitle" class="form-control" type="text" maxlength="150" placeholder="Un breve título" />
+            </div>
+            <div class="mb-3">
+                <label for="reviewBody" class="form-label">Reseña</label>
+                <textarea id="reviewBody" class="form-control" rows="4" placeholder="Contá qué te pareció"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Publicar reseña</button>
+        </form>
+    </div>
+
+    <div class="mt-4">
+        <h2 class="h5 mb-2">Reseñas de la comunidad</h2>
+        <div id="reviewsList" class="vstack gap-3"></div>
+    </div>
+</section>
 
 <!-- con mantener los id alcanza, ejemplo: <span id="..."></span>, <hX id="titulo"></hX>. todo el resto se puede modificar libremente -->
 <!-- cada cada contenido va dirigido a esos ids, creo que no importa que tipo de etiqueta sea -->
 <!-- yo(ardui) sacaria los p strong , etc. lo haria de otra forma -->
 
 {% endblock %} {% block scripts %}
-<script>
-    const API = "http://127.0.0.1:5000/api";
-    const movieId = "{{ movie_id }}"; // Flask inserta el ID aquí
-
-    async function cargarPelicula() {
-        console.log("Ejecutando cargarPelicula()");
-        try {
-            const resp = await fetch(`${API}/peliculas/${movieId}`);
-            const json = await resp.json();
-            console.log("Respuesta:", json);
-
-            if (json.status !== "success") {
-                document.getElementById("pelicula").innerHTML = "<p class='text-danger'>Error al cargar la película.</p>";
-                return;
-            }
-
-            const p = json.data;
-
-            document.getElementById("titulo").textContent = p.title;
-            document.getElementById("descripcion").textContent = p.overview;
-            document.getElementById("fecha").textContent = p.release_date;
-            document.getElementById("duracion").textContent = p.runtime;
-            document.getElementById("generos").textContent = p.genres.join(", ");
-            document.getElementById("puntuacion").textContent = p.vote_average;
-            document.getElementById("imagen").src = p.imageUrl;
-        } catch (err) {
-            console.error("Error cargando película:", err);
-        }
-    }
-
-    window.addEventListener("DOMContentLoaded", cargarPelicula);
-</script>
+<script>window.MOVIE_ID = "{{ movie_id }}";</script>
+<script type="module" src="{{ url_for('static', filename='js/pages/pelicula.js') }}"></script>
 {% endblock %}
