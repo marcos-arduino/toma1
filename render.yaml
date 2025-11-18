@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tomauno
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k eventlet -w 1 -b 0.0.0.0:$PORT app:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tomauno-db
+          property: connectionString
+      - key: TMDB_API_KEY
+        sync: false
+
+databases:
+  - name: tomauno-db
+    plan: free

@@ -1,0 +1,10 @@
+Flask
+Flask-SocketIO
+Flask-Bcrypt
+Flask-CORS
+SQLAlchemy
+psycopg2-binary
+requests
+eventlet
+gunicorn
+python-dotenv

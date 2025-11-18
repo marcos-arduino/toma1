@@ -5,6 +5,7 @@ import db
 import os
 from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)
@@ -15,8 +16,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 connected_clients = set()
 
 
+# Cargar variables de entorno desde .env si existe
+load_dotenv()
+
 # --- Configuración TMDB ---
-API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
+API_KEY = os.getenv("TMDB_API_KEY", "40de1255ef09a65984a1b8def1d8c3ce")
 TMDB_URL = "https://api.themoviedb.org/3"
 
 
