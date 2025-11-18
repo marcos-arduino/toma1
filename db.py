@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nombre VARCHAR(100) NOT NULL,
   email VARCHAR(150) UNIQUE NOT NULL,
   contrasena_hash TEXT NOT NULL,
-  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  es_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS directores (
@@ -81,6 +83,10 @@ CREATE TABLE IF NOT EXISTS lista_usuario (
     fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_usuario, id_pelicula)
 );
+ 
+-- asegurar columnas para esquemas antiguos
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS es_admin BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TRUE;
 """
 
 with engine.begin() as conn:
@@ -195,6 +201,42 @@ def buscar_usuario_por_email(email):
         result = conn.execute(query, {"email": email}).mappings().fetchone()
         return result
 
+def agregar_a_lista(id_usuario, id_pelicula, titulo, poster_url):
+    """Agrega una película a la lista del usuario."""
+    query = text("""
+        INSERT INTO lista_usuario (id_usuario, id_pelicula, titulo, poster_url)
+        VALUES (:id_usuario, :id_pelicula, :titulo, :poster_url)
+        ON CONFLICT (id_usuario, id_pelicula) DO NOTHING
+    """)
+def buscar_usuario_por_id(user_id: int):
+    query = text("SELECT * FROM usuarios WHERE id = :id")
+    with engine.connect() as conn:
+        result = conn.execute(query, {"id": user_id}).mappings().fetchone()
+        return result
+
+def listar_usuarios():
+    query = text(
+        """
+        SELECT id, nombre, email, fecha_registro, es_admin, activo
+        FROM usuarios
+        ORDER BY fecha_registro DESC;
+        """
+    )
+    with engine.connect() as conn:
+        rows = conn.execute(query).mappings().fetchall()
+        return [dict(row) for row in rows]
+
+def desactivar_usuario(user_id: int):
+    query = text(
+        """
+        UPDATE usuarios
+        SET activo = FALSE
+        WHERE id = :id;
+        """
+    )
+    with engine.begin() as conn:
+        conn.execute(query, {"id": user_id})
+
 # --- Lista de usuario (favoritos / mi lista) ---
 def agregar_a_lista(id_usuario: int, id_pelicula: int, titulo: str, poster_url: str | None = None):
     """Inserta o actualiza una película en la lista del usuario."""
@@ -213,6 +255,29 @@ def agregar_a_lista(id_usuario: int, id_pelicula: int, titulo: str, poster_url: 
             "id_usuario": id_usuario,
             "id_pelicula": id_pelicula,
             "titulo": titulo,
+            "poster_url": poster_url
+        })
+
+def eliminar_de_lista(id_usuario, id_pelicula):
+    """Elimina una película de la lista del usuario."""
+    query = text("""
+        DELETE FROM lista_usuario
+        WHERE id_usuario = :id_usuario AND id_pelicula = :id_pelicula
+    """)
+    with engine.begin() as conn:
+        conn.execute(query, {
+            "id_usuario": id_usuario,
+            "id_pelicula": id_pelicula
+        })
+
+def obtener_lista_usuario(id_usuario):
+    """Obtiene la lista de películas de un usuario."""
+    query = text("""
+        SELECT id_pelicula, titulo, poster_url, fecha_agregado
+        FROM lista_usuario
+        WHERE id_usuario = :id_usuario
+        ORDER BY fecha_agregado DESC
+    """)
             "poster_url": poster_url,
         })
 
