@@ -194,6 +194,13 @@ def buscar_usuario_por_email(email):
         result = conn.execute(query, {"email": email}).mappings().fetchone()
         return result
 
+def agregar_a_lista(id_usuario, id_pelicula, titulo, poster_url):
+    """Agrega una película a la lista del usuario."""
+    query = text("""
+        INSERT INTO lista_usuario (id_usuario, id_pelicula, titulo, poster_url)
+        VALUES (:id_usuario, :id_pelicula, :titulo, :poster_url)
+        ON CONFLICT (id_usuario, id_pelicula) DO NOTHING
+    """)
 def buscar_usuario_por_id(user_id: int):
     query = text("SELECT * FROM usuarios WHERE id = :id")
     with engine.connect() as conn:
@@ -241,6 +248,29 @@ def agregar_a_lista(id_usuario: int, id_pelicula: int, titulo: str, poster_url: 
             "id_usuario": id_usuario,
             "id_pelicula": id_pelicula,
             "titulo": titulo,
+            "poster_url": poster_url
+        })
+
+def eliminar_de_lista(id_usuario, id_pelicula):
+    """Elimina una película de la lista del usuario."""
+    query = text("""
+        DELETE FROM lista_usuario
+        WHERE id_usuario = :id_usuario AND id_pelicula = :id_pelicula
+    """)
+    with engine.begin() as conn:
+        conn.execute(query, {
+            "id_usuario": id_usuario,
+            "id_pelicula": id_pelicula
+        })
+
+def obtener_lista_usuario(id_usuario):
+    """Obtiene la lista de películas de un usuario."""
+    query = text("""
+        SELECT id_pelicula, titulo, poster_url, fecha_agregado
+        FROM lista_usuario
+        WHERE id_usuario = :id_usuario
+        ORDER BY fecha_agregado DESC
+    """)
             "poster_url": poster_url,
         })
 
