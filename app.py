@@ -8,6 +8,9 @@ from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 
+import eventlet
+eventlet.monkey_patch()
+
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
