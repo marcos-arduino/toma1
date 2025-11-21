@@ -278,8 +278,9 @@ def obtener_lista_usuario(id_usuario):
         WHERE id_usuario = :id_usuario
         ORDER BY fecha_agregado DESC
     """)
-            "poster_url": poster_url,
-        })
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_usuario": id_usuario}).mappings().fetchall()
+        return [dict(row) for row in rows]
 
 def eliminar_de_lista(id_usuario: int, id_pelicula: int):
     query = text(
