@@ -1,17 +1,15 @@
-from sqlalchemy import text, create_engine
-from flask_bcrypt import Bcrypt
-bcrypt = Bcrypt()
+from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
+from sqlalchemy import text
+from flask_bcrypt import Bcrypt
+bcrypt = Bcrypt()
 
-# Cargar variables de entorno desde .env si existe
 load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1")
-if DATABASE_URL.startswith("postgres://"):
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
-
-engine = create_engine(DATABASE_URL)  # echo=True para ver las queries
+engine = create_engine(DATABASE_URL)
 
 schema_sql = """
 CREATE TABLE IF NOT EXISTS usuarios (

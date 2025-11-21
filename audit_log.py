@@ -2,16 +2,15 @@
 Sistema de Auditoría y Bitácora
 Registra todas las acciones que alteran el estado del sistema y detecta eventos críticos.
 """
-from sqlalchemy import text, create_engine
+from sqlalchemy import text
 from datetime import datetime, timedelta
 import json
 from typing import Optional, Dict, Any
 from collections import defaultdict
 import threading
 
-# Usar la misma configuración de base de datos
-DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
-engine = create_engine(DATABASE_URL)
+# Importar la configuración de base de datos desde db.py
+from db import engine
 
 # Contador de intentos fallidos por usuario/IP
 failed_login_attempts = defaultdict(list)
