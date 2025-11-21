@@ -6,6 +6,7 @@ import audit_log
 import os
 from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)
@@ -23,8 +24,11 @@ def get_client_ip():
     return request.environ.get('REMOTE_ADDR', 'unknown')
 
 
+# Cargar variables de entorno desde .env si existe
+load_dotenv()
+
 # --- Configuración TMDB ---
-API_KEY = "40de1255ef09a65984a1b8def1d8c3ce"
+API_KEY = os.getenv("TMDB_API_KEY", "40de1255ef09a65984a1b8def1d8c3ce")
 TMDB_URL = "https://api.themoviedb.org/3"
 
 
@@ -168,6 +172,21 @@ def crear_review(movie_id):
 
         review_id = db.crear_review(id_usuario, movie_id, rating, titulo, comentario)
         
+        # Emitir evento en tiempo real a los clientes conectados
+        try:
+            usuario = db.buscar_usuario_por_id(id_usuario)
+            socketio.emit("nueva_review", {
+                "movie_id": movie_id,
+                "id": review_id,
+                "rating": rating,
+                "titulo": titulo,
+                "comentario": comentario,
+                "usuario": usuario["nombre"] if usuario else "Anónimo",
+            })
+        except Exception as socket_err:
+            # No romper la creación de la review si falla el broadcast
+            print("Error emitiendo nueva_review:", socket_err)
+
         audit_log.log_audit_event(
             event_type='REVIEW_CREATE',
             action_description=f"Review creada para película {movie_id}",

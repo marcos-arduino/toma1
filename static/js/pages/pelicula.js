@@ -65,22 +65,27 @@ async function cargarReviews() {
         const list = document.getElementById('reviewsList');
         list.innerHTML = '';
         (data.data || []).forEach(r => {
-            const item = document.createElement('div');
-            item.className = 'review-item';
-            item.innerHTML = `
-                <div class="d-flex align-items-start gap-2">
-                    <div class="review-rating">${Number(r.rating).toFixed(1)} ★</div>
-                    <div>
-                        <div class="fw-semibold">${r.titulo || '(Sin título)'}<\/div>
-                        <div class="small muted">por ${r.usuario || 'Anónimo'} · ${formatDateDMY(r.fecha)}<\/div>
-                        <div class="mt-1">${(r.comentario || '').replace(/</g,'&lt;')}<\/div>
-                    <\/div>
-                <\/div>`;
+            const item = renderReviewItem(r);
             list.appendChild(item);
         });
     } catch (e) {
         console.error('reviews error', e);
     }
+}
+
+function renderReviewItem(r) {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `
+        <div class="d-flex align-items-start gap-2">
+            <div class="review-rating">${Number(r.rating).toFixed(1)} ★<\/div>
+            <div>
+                <div class="fw-semibold">${r.titulo || '(Sin título)'}<\/div>
+                <div class="small muted">por ${r.usuario || 'Anónimo'} · ${formatDateDMY(r.fecha)}<\/div>
+                <div class="mt-1">${(r.comentario || '').replace(/</g,'&lt;')}<\/div>
+            <\/div>
+        <\/div>`;
+    return item;
 }
 
 function initFormReview() {
@@ -132,6 +137,45 @@ function initPelicula() {
     initRatingWidget();
     initFormReview();
     cargarReviews();
+
+    // Realtime reviews via Socket.IO
+    try {
+        const socket = window.appSocket || (typeof io !== 'undefined' ? io() : null);
+        if (!socket) {
+            console.warn('Socket.IO no disponible en pagina de pelicula');
+            return;
+        }
+
+        console.log('initPelicula: escuchando evento nueva_review para movieId=', movieId, 'socketId=', socket.id);
+
+        socket.on('nueva_review', (data) => {
+            console.log('Evento nueva_review recibido:', data);
+            if (!data || typeof data.movie_id === 'undefined') return;
+            if (String(data.movie_id) !== String(movieId)) {
+                console.log('nueva_review es de otra pelicula, se ignora');
+                return;
+            }
+
+            const list = document.getElementById('reviewsList');
+            if (!list) {
+                console.warn('reviewsList no encontrado en DOM');
+                return;
+            }
+
+            const review = {
+                rating: data.rating,
+                titulo: data.titulo,
+                comentario: data.comentario,
+                usuario: data.usuario || 'Anónimo',
+                fecha: new Date().toISOString(),
+            };
+
+            const item = renderReviewItem(review);
+            list.prepend(item);
+        });
+    } catch (e) {
+        console.error('Error configurando Socket.IO para reviews:', e);
+    }
 }
 
 window.addEventListener("DOMContentLoaded", initPelicula);

@@ -1,8 +1,15 @@
 from sqlalchemy import text, create_engine
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
+import os
+from dotenv import load_dotenv
 
-DATABASE_URL = "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1"
+# Cargar variables de entorno desde .env si existe
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:3NdzzkT5@localhost:5432/toma1")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
 engine = create_engine(DATABASE_URL)  # echo=True para ver las queries
 
@@ -271,8 +278,9 @@ def obtener_lista_usuario(id_usuario):
         WHERE id_usuario = :id_usuario
         ORDER BY fecha_agregado DESC
     """)
-            "poster_url": poster_url,
-        })
+    with engine.connect() as conn:
+        rows = conn.execute(query, {"id_usuario": id_usuario}).mappings().fetchall()
+        return [dict(row) for row in rows]
 
 def eliminar_de_lista(id_usuario: int, id_pelicula: int):
     query = text(
