@@ -1,15 +1,27 @@
 from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
 import os
 from dotenv import load_dotenv
 from sqlalchemy import text
 from flask_bcrypt import Bcrypt
-bcrypt = Bcrypt()
 
+bcrypt = Bcrypt()
 load_dotenv()
+
 DATABASE_URL = os.getenv("DATABASE_URL")
+
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
-engine = create_engine(DATABASE_URL)
+
+engine = create_engine(
+    DATABASE_URL,
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_pre_ping=True,
+    pool_recycle=300
+)
 
 schema_sql = """
 CREATE TABLE IF NOT EXISTS usuarios (

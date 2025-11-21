@@ -1,3 +1,8 @@
+# These imports must be at the very top
+import eventlet
+eventlet.monkey_patch()
+
+# Now import other modules
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import requests
@@ -8,13 +13,19 @@ from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 
-import eventlet
-eventlet.monkey_patch()
-
 app = Flask(__name__)
+
 CORS(app)
+
 bcrypt = Bcrypt(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    async_mode='eventlet',
+    logger=True,
+    engineio_logger=True
+)
 
 # Conjunto para llevar la cuenta de clientes conectados
 connected_clients = set()
@@ -26,8 +37,6 @@ def get_client_ip():
         return request.environ['HTTP_X_FORWARDED_FOR'].split(',')[0]
     return request.environ.get('REMOTE_ADDR', 'unknown')
 
-
-# Cargar variables de entorno desde .env si existe
 load_dotenv()
 
 # --- Configuración TMDB ---
@@ -154,9 +163,7 @@ def crear_review(movie_id):
                 metadata={'movie_id': movie_id, 'rating': rating}
             )
             return jsonify({"status": "error", "message": "Rating inválido"}), 400
-        
-            return jsonify({"status": "error", "message": "Rating inválido"}), 400
-        # Ensure pelicula exists locally to satisfy FK
+
         try:
             resp = requests.get(f"{TMDB_URL}/movie/{movie_id}", params={
                 "api_key": API_KEY,
@@ -170,7 +177,6 @@ def crear_review(movie_id):
                 anio_min = int(m["release_date"].split("-")[0])
             db.upsert_pelicula_minima(movie_id, titulo_min, anio_min)
         except Exception:
-            # As a last resort, insert with fallback title
             db.upsert_pelicula_minima(movie_id, f"TMDB {movie_id}")
 
         review_id = db.crear_review(id_usuario, movie_id, rating, titulo, comentario)
@@ -187,7 +193,6 @@ def crear_review(movie_id):
                 "usuario": usuario["nombre"] if usuario else "Anónimo",
             })
         except Exception as socket_err:
-            # No romper la creación de la review si falla el broadcast
             print("Error emitiendo nueva_review:", socket_err)
 
         audit_log.log_audit_event(
@@ -273,7 +278,7 @@ def api_pelicula(movie_id):
 def agregar_pelicula_lista(pelicula_id):
     ip_address = get_client_ip()
     data = request.get_json(silent=True)
-    print("Datos recibidos:", data)  #imprimí esto
+    print("Datos recibidos:", data)
 
     if not data:
         audit_log.log_audit_event(
@@ -662,7 +667,6 @@ def get_critical_alerts_api():
                     'severity': alert['severity'],
                     'timestamp': str(alert['timestamp'])
                 })
-                # Marcar como notificada
                 audit_log.mark_alert_notified(alert['id'])
         
         return jsonify({
@@ -734,7 +738,6 @@ def handle_disconnect():
     print(f"Cliente desconectado: {client_id}")
     print(f"Total de clientes conectados: {len(connected_clients)}")
     
-    # Notificar a todos los clientes sobre el nuevo conteo
     socketio.emit("online_count", {
         "count": len(connected_clients),
         "clients": list(connected_clients)
@@ -750,7 +753,6 @@ def handle_chat_message(data):
     message_text = data.get("text", "")
     print(f"Mensaje de {client_id}: {message_text}")
     
-    # Reemite el mensaje a todos los clientes conectados
     emit("chat_message", {
         "from": client_id,
         "text": message_text,
@@ -759,7 +761,6 @@ def handle_chat_message(data):
 
 @app.route("/api/broadcast-test", methods=["GET"])
 def broadcast_test():
-    # Emite un mensaje de prueba a todos los clientes conectados
     socketio.emit("chat_message", {"from": "server", "text": "Hola a todos"})
     return jsonify({"status": "ok"}), 200
 
