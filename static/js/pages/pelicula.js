@@ -29,6 +29,28 @@ async function cargarPelicula() {
         if (Array.isArray(p.cast) && p.cast.length) {
             document.getElementById("elenco").textContent = p.cast.slice(0,3).join(", ");
         }
+
+        // plataformas
+        const proveedoresContainer = document.getElementById('proveedores');
+        const plataformasSection = document.getElementById('plataformas');
+        
+        if (p.providers && p.providers.flatrate && p.providers.flatrate.length > 0) {
+            proveedoresContainer.innerHTML = p.providers.flatrate
+                .map(provider => `
+                    <img src="${provider.logo}" 
+                         alt="${provider.name}" 
+                         title="${provider.name}" 
+                         class="provider-logo" 
+                         style="height: 30px; width: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                `).join('');
+        } else {
+            // Mostrar mensaje si no hay proveedores
+            proveedoresContainer.innerHTML = `
+                <div class="muted">
+                    No hay información sobre disponibilidad en plataformas en Argentina
+                </div>
+            `;
+        }
         // Botón de agregar a mi lista (variant full)
         const wrap = document.getElementById('addToListWrap');
         if (wrap) {

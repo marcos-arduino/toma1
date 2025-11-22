@@ -1,8 +1,6 @@
-# These imports must be at the very top
 import eventlet
 eventlet.monkey_patch()
 
-# Now import other modules
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import requests
@@ -231,8 +229,8 @@ def crear_review(movie_id):
 
 @app.route("/api/peliculas/<int:movie_id>", methods=["GET"])
 def api_pelicula(movie_id):
-    """Devuelve detalles de una película específica por ID"""
     try:
+        # Obtener detalles de la película
         resp = requests.get(f"{TMDB_URL}/movie/{movie_id}", params={
             "api_key": API_KEY,
             "language": "es-ES"
@@ -240,6 +238,7 @@ def api_pelicula(movie_id):
         resp.raise_for_status()
         data = resp.json()
 
+        # Obtener elenco
         cast_names = []
         try:
             credits = requests.get(
@@ -249,9 +248,29 @@ def api_pelicula(movie_id):
             credits.raise_for_status()
             cjson = credits.json() or {}
             cast = cjson.get("cast", [])
-            cast_names = [c.get("name") for c in cast if c.get("name")] [:3]
-        except Exception:
+            cast_names = [c.get("name") for c in cast if c.get("name")][:3] # con esto agarra solo a 3 actores
+        except Exception as e:
+            print("Error al obtener elenco:", e)
             cast_names = []
+
+        # Obtener plataformas/proveedores
+        providers = {"flatrate": []}
+        try:
+            prov_resp = requests.get(
+                f"{TMDB_URL}/movie/{movie_id}/watch/providers",
+                params={"api_key": API_KEY}
+            )
+            if prov_resp.status_code == 200:
+                providers_data = prov_resp.json().get('results', {})
+                # Priorizar Argentina
+                country_data = providers_data.get('AR') or next(iter(providers_data.values()), {})
+                if country_data and country_data.get('flatrate'):
+                    providers['flatrate'] = [{
+                        'name': p.get('provider_name'),
+                        'logo': f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
+                    } for p in country_data.get('flatrate', [])][:5]  # Limitar a 5 proveedores
+        except Exception as e:
+            print("Error al obtener proveedores:", e)
 
         pelicula = {
             "id": data.get("id"),
@@ -263,7 +282,8 @@ def api_pelicula(movie_id):
             "runtime": data.get("runtime", "N/D"),
             "genres": [g["name"] for g in data.get("genres", [])],
             "vote_average": data.get("vote_average", "N/D"),
-            "cast": cast_names
+            "cast": cast_names,
+            "providers": providers
         }
 
         return jsonify({
