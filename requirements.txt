@@ -1,30 +1,31 @@
 # flask
-Flask==2.3.3
-Werkzeug==2.3.7
-Jinja2==3.1.2
-itsdangerous==2.1.2
-click==8.1.7
+Flask
+Werkzeug
+Jinja2
+itsdangerous
+click
 
 # db
-SQLAlchemy==2.0.23
-psycopg2-binary==2.9.9
-alembic==1.12.1
+SQLAlchemy
+psycopg2-binary
+alembic
 
 # auth
-Flask-Bcrypt==1.0.1
-cryptography==41.0.4
+Flask-Bcrypt
+cryptography
 
 # websockets y tiempo real
-Flask-SocketIO==5.3.5
-python-socketio==5.9.0
-python-engineio==4.7.0
-eventlet==0.33.3
+Flask-SocketIO
+python-socketio
+python-engineio
+eventlet
 
 # api y cors
-Flask-CORS==4.0.0
-requests==2.31.0
+Flask-CORS
+requests
 
-Gunicorn==21.2.0
+# servidor
+Gunicorn
 
 # env
-python-dotenv==1.0.0
+python-dotenv
