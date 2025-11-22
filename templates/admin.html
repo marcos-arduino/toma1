@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1>Panel de administración</h1>
+    <p class="text-muted small">Desde aquí podés gestionar usuarios y revisar los logs de auditoría.</p>
+</div>
+
+<div id="admin-access-section" class="mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Acceso de administrador</h5>
+            <p class="card-text mb-3 small">Debes estar logueado como usuario administrador y además ingresar la clave de admin.</p>
+            <div class="mb-3">
+                <label for="adminKeyInput" class="form-label">Clave de admin</label>
+                <input type="password" id="adminKeyInput" class="form-control" placeholder="Ingresa la clave de admin" />
+            </div>
+            <div id="adminAccessMsg" class="small mb-2 text-danger"></div>
+            <button id="btnAdminAccess" class="btn btn-primary">Validar acceso</button>
+        </div>
+    </div>
+</div>
+
+<div id="admin-content" class="d-none">
+    <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane" type="button" role="tab">Usuarios</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-pane" type="button" role="tab">Logs</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="users-pane" role="tabpanel" aria-labelledby="users-tab">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Usuarios registrados</span>
+                    <button id="btnReloadUsers" class="btn btn-sm btn-outline-secondary">Refrescar</button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Admin</th>
+                                    <th>Activo</th>
+                                    <th>Registrado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="logs-pane" role="tabpanel" aria-labelledby="logs-tab">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Logs de auditoría recientes</span>
+                    <button id="btnReloadLogs" class="btn btn-sm btn-outline-secondary">Refrescar</button>
+                </div>
+                <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Severidad</th>
+                                <th>Usuario</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/admin.js') }}"></script>
+{% endblock %}

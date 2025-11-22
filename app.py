@@ -45,11 +45,18 @@ ENCRYPTED_API_KEY = os.getenv('TMDB_API_KEY')
 API_KEY = decrypt_token(ENCRYPTED_API_KEY) if ENCRYPTED_API_KEY.startswith('gAAAA') else ENCRYPTED_API_KEY
 TMDB_URL = "https://api.themoviedb.org/3"
 
+# --- Clave de acceso de administrador ---
+ADMIN_ACCESS_KEY = os.getenv('ADMIN_ACCESS_KEY', 'changeme')
+
 
 # -------- RUTAS DE PÁGINAS --------
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/admin")
+def admin_page():
+    return render_template("admin.html")
 
 @app.route("/peliculas/<string:tipo>")
 def ver_peliculas(tipo):
@@ -568,6 +575,26 @@ def admin_listar_usuarios():
         "total": len(usuarios),
         "data": usuarios
     }), 200
+
+
+@app.route("/api/admin/validate", methods=["POST"])
+def admin_validate():
+    """Valida la clave de administrador para acceder al panel."""
+    data = request.json or {}
+    admin_id = data.get("admin_id")
+    admin_key = data.get("admin_key")
+
+    if not admin_id or not admin_key:
+        return jsonify({"status": "error", "message": "admin_id y admin_key requeridos"}), 400
+
+    admin = db.buscar_usuario_por_id(int(admin_id))
+    if not admin or not admin.get("es_admin", False):
+        return jsonify({"status": "error", "message": "No autorizado"}), 403
+
+    if admin_key != ADMIN_ACCESS_KEY:
+        return jsonify({"status": "error", "message": "Clave de admin incorrecta"}), 403
+
+    return jsonify({"status": "success", "message": "Acceso de admin concedido"}), 200
 
 
 @app.route("/api/admin/usuarios/<int:user_id>/desactivar", methods=["POST"])

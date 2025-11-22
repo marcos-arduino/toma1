@@ -1,0 +1,52 @@
+1. Rol de admin en la tabla (es_admin)
+Separación de roles: tener una columna es_admin te permite distinguir claramente entre usuarios normales y administradores.
+Principio de mínimo privilegio: solo quienes tengan es_admin = true pueden pegarle a los endpoints de admin (/api/admin/usuarios, desactivar usuarios, etc.).
+Control centralizado: cambiando un solo flag en la base podés:
+promover/degradar admins,
+auditar quién es admin en cualquier momento (SELECT ... FROM usuarios).
+Escalable: mañana podés agregar más roles (rol = 'admin' | 'moderador' | 'user') sin cambiar todo el sistema.
+2. “Dar de baja” lógico (activo = FALSE) en vez de borrar
+No perdés historial:
+El usuario no puede loguear más (
+login
+ ya bloquea si activo = FALSE),
+pero sus reviews, logs de auditoría, etc. siguen existiendo.
+Auditoría y trazabilidad: si hay problemas de seguridad o disputas, podés ver qué hizo ese usuario antes de ser desactivado.
+Reversibilidad: si te equivocás, podés volver a activar al usuario (activo = TRUE) sin restaurar backups.
+3. Clave de admin separada del login
+Doble factor (simple): no alcanza con:
+ser usuario admin (es_admin = true),
+estar logueado.
+Además necesitás la clave de admin para entrar al panel /admin.
+Protección contra secuestro de sesión: si alguien roba una sesión/token de un admin, igual no puede entrar al panel si no conoce la clave.
+Rotación sencilla: la clave está en el 
+.env
+:
+podés cambiar ADMIN_ACCESS_KEY sin tocar código ni la base.
+podés revocarla si sospechás que se filtró.
+4. Panel de admin consumiendo APIs
+El panel web no toca la base directamente, sino que usa APIs:
+GET /api/admin/usuarios
+POST /api/admin/usuarios/<id>/desactivar
+GET /api/audit/logs
+Beneficios:
+La misma lógica se podría reutilizar desde otros clientes (otra app, scripts internos).
+Toda la seguridad y auditoría se concentra en el backend, no en el JS del navegador.
+Podés loguear todas las acciones de admin (ya tenés audit_log para eso).
+5. Configuración sensible por variables de entorno
+ADMIN_ACCESS_KEY no está hardcodeado en el código, sino en 
+.env
+.
+Eso es buena práctica porque:
+Podés tener claves distintas en dev / staging / prod.
+Es más fácil ocultar el 
+.env
+ en el repositorio (por .gitignore).
+Reduce el riesgo de subir credenciales a GitHub.
+En resumen:
+
+es_admin y activo te dan control de roles y estados desde la base.
+La clave de admin en 
+.env
+ agrega una segunda barrera para las operaciones sensibles.
+Usar endpoints dedicados + logs hace que todo sea auditable y extensible.
