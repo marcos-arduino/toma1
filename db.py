@@ -102,6 +102,42 @@ ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TR
 with engine.begin() as conn:
     conn.execute(text(schema_sql))
 
+
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+ADMIN_NAME = os.getenv("ADMIN_NAME", "Administrador")
+
+
+def asegurar_admin_por_defecto():
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        return
+
+    query_select = text("SELECT id FROM usuarios WHERE email = :email")
+    query_insert = text(
+        """
+        INSERT INTO usuarios (nombre, email, contrasena_hash, es_admin, activo)
+        VALUES (:nombre, :email, :contrasena_hash, TRUE, TRUE)
+        """
+    )
+
+    with engine.begin() as conn:
+        existing = conn.execute(query_select, {"email": ADMIN_EMAIL}).fetchone()
+        if existing:
+            return
+
+        password_hash = bcrypt.generate_password_hash(ADMIN_PASSWORD).decode("utf-8")
+        conn.execute(
+            query_insert,
+            {
+                "nombre": ADMIN_NAME,
+                "email": ADMIN_EMAIL,
+                "contrasena_hash": password_hash,
+            },
+        )
+
+
+asegurar_admin_por_defecto()
+
 def agregar_pelicula(titulo, anio, duracion, sinopsis, id_director):
     query = text("""
         INSERT INTO peliculas (titulo, anio, duracion, sinopsis, id_director)

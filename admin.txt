@@ -1,52 +1,111 @@
-1. Rol de admin en la tabla (es_admin)
-Separación de roles: tener una columna es_admin te permite distinguir claramente entre usuarios normales y administradores.
-Principio de mínimo privilegio: solo quienes tengan es_admin = true pueden pegarle a los endpoints de admin (/api/admin/usuarios, desactivar usuarios, etc.).
-Control centralizado: cambiando un solo flag en la base podés:
-promover/degradar admins,
-auditar quién es admin en cualquier momento (SELECT ... FROM usuarios).
-Escalable: mañana podés agregar más roles (rol = 'admin' | 'moderador' | 'user') sin cambiar todo el sistema.
-2. “Dar de baja” lógico (activo = FALSE) en vez de borrar
-No perdés historial:
-El usuario no puede loguear más (
-login
- ya bloquea si activo = FALSE),
-pero sus reviews, logs de auditoría, etc. siguen existiendo.
-Auditoría y trazabilidad: si hay problemas de seguridad o disputas, podés ver qué hizo ese usuario antes de ser desactivado.
-Reversibilidad: si te equivocás, podés volver a activar al usuario (activo = TRUE) sin restaurar backups.
-3. Clave de admin separada del login
-Doble factor (simple): no alcanza con:
-ser usuario admin (es_admin = true),
-estar logueado.
-Además necesitás la clave de admin para entrar al panel /admin.
-Protección contra secuestro de sesión: si alguien roba una sesión/token de un admin, igual no puede entrar al panel si no conoce la clave.
-Rotación sencilla: la clave está en el 
-.env
-:
-podés cambiar ADMIN_ACCESS_KEY sin tocar código ni la base.
-podés revocarla si sospechás que se filtró.
-4. Panel de admin consumiendo APIs
-El panel web no toca la base directamente, sino que usa APIs:
-GET /api/admin/usuarios
-POST /api/admin/usuarios/<id>/desactivar
-GET /api/audit/logs
-Beneficios:
-La misma lógica se podría reutilizar desde otros clientes (otra app, scripts internos).
-Toda la seguridad y auditoría se concentra en el backend, no en el JS del navegador.
-Podés loguear todas las acciones de admin (ya tenés audit_log para eso).
-5. Configuración sensible por variables de entorno
-ADMIN_ACCESS_KEY no está hardcodeado en el código, sino en 
-.env
-.
-Eso es buena práctica porque:
-Podés tener claves distintas en dev / staging / prod.
-Es más fácil ocultar el 
-.env
- en el repositorio (por .gitignore).
-Reduce el riesgo de subir credenciales a GitHub.
-En resumen:
+1. ¿Qué hace exactamente la lógica?
+En 
+db.py
+ tenemos:
 
-es_admin y activo te dan control de roles y estados desde la base.
-La clave de admin en 
+Variables de entorno con defaults:
+ADMIN_EMAIL
+ADMIN_PASSWORD
+ADMIN_NAME
+Función:
+python
+def asegurar_admin_por_defecto():
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        return
+
+    query_select = text("SELECT id FROM usuarios WHERE email = :email")
+    query_insert = text("""
+        INSERT INTO usuarios (nombre, email, contrasena_hash, es_admin, activo)
+        VALUES (:nombre, :email, :contrasena_hash, TRUE, TRUE)
+    """)
+
+    with engine.begin() as conn:
+        existing = conn.execute(query_select, {"email": ADMIN_EMAIL}).fetchone()
+        if existing:
+            return
+
+        password_hash = bcrypt.generate_password_hash(ADMIN_PASSWORD).decode("utf-8")
+        conn.execute(query_insert, {
+            "nombre": ADMIN_NAME,
+            "email": ADMIN_EMAIL,
+            "contrasena_hash": password_hash,
+        })
+Y se llama automáticamente:
+python
+asegurar_admin_por_defecto()
+Traducción en palabras:
+
+Cuando se importa db (o sea, cuando arranca la app), se ejecuta 
+asegurar_admin_por_defecto
+.
+Toma el email y password del admin desde variables de entorno.
+Mira en la tabla usuarios si ya existe un usuario con ese email.
+Si ya existe, no hace nada.
+Si no existe, crea un usuario nuevo con:
+ese email
+password hasheado
+es_admin = TRUE
+activo = TRUE.
+Así, el sistema siempre garantiza que haya al menos un admin conocido.
+
+2. ¿Por qué es buena práctica?
+2.1. Evitás dependencias manuales
+Antes: tenías que entrar a PostgreSQL y hacer un INSERT a mano cada vez que:
+clonabas el proyecto,
+cambiabas de máquina,
+creabas una nueva base (por ejemplo, en Render).
+Ahora: el propio sistema se auto-configura.
+Levantás la app con las env vars correctas → ya tenés admin.
+Esto hace que el proyecto sea reproducible: cualquiera que lo levante con la misma config tiene el mismo resultado.
+
+2.2. Configurable por entorno (local / producción)
+Local: definís un admin con una contraseña cómoda para probar.
+Render/producción: definís otro email y otra contraseña, más segura.
+La lógica de creación está en el código, pero los datos sensibles (email, contraseña) se controlan por variables de entorno, que es la práctica estándar:
+
+No quedan claves duras en el repo.
+Podés cambiarlas sin tocar código.
+Podés tener valores distintos por entorno.
+2.3. Idempotente (no rompe si se ejecuta muchas veces)
+La función primero consulta si el usuario ya existe:
+
+python
+existing = conn.execute(query_select, {"email": ADMIN_EMAIL}).fetchone()
+if existing:
+    return
+Eso significa:
+
+Podés reiniciar el servidor 1000 veces.
+Podés desplegar de nuevo en Render.
+Podés correr tests varias veces.
+Y nunca se van a crear admins duplicados. Esa propiedad (que al repetir la operación el sistema queda en el mismo estado) es clave para inicializaciones seguras.
+
+2.4. Seguridad razonable
+La contraseña del admin se guarda hasheada con bcrypt, nunca en texto plano en la base.
+La contraseña real solo vive:
+En la variable de entorno (ADMIN_PASSWORD).
+En la mente del admin.
+En el código no aparece ninguna contraseña real, solo lógica de hash.
+En producción, la buena práctica es:
+
+ADMIN_PASSWORD fuerte (larga y random).
+No usar los defaults (admin@example.com / admin123) en un entorno público.
+2.5. Facilita onboarding de otros devs
+Si alguien más clona tu repo:
+
+Solo necesita:
+crear la DB,
+configurar 
 .env
- agrega una segunda barrera para las operaciones sensibles.
-Usar endpoints dedicados + logs hace que todo sea auditable y extensible.
+ (o usar el tuyo),
+levantar la app.
+No hace falta que sigan un doc con pasos raros tipo: “ejecuta este script SQL para crear el admin”. La app se encarga sola.
+
+3. Resumen corto
+Qué hace: al arrancar la app, se asegura de que exista un usuario admin con los datos de las variables de entorno; si ya existe, no lo duplica.
+Por qué es buena práctica:
+Automatiza la configuración inicial.
+Mantiene contraseñas y emails fuera del código (env vars).
+Es idempotente (seguro repetirlo mil veces).
+Es portable entre local y producción.
+Mejora la seguridad (hash de contraseña, sin datos sensibles en el repo).
