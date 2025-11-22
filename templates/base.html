@@ -136,7 +136,7 @@
                         <h6 class="text-light mb-2">Contacto</h6>
                         <ul class="list-unstyled mb-0 footer-links">
                             <li><a class="text-break" href="mailto:contacto@tomauno.app">contacto@tomauno.app</a></li>
-                            <li><a href="#">Términos y privacidad</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Términos y privacidad</a></li>
                         </ul>
                     </div>
                 </div>
@@ -146,6 +146,44 @@
                 </div>
             </div>
         </footer>
+        <!-- Términos y Privacidad Modal -->
+        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="termsModalLabel">Términos de Uso y Política de Privacidad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>1. Términos de Uso</h5>
+                        <p>Al acceder y utilizar TomaUNO, aceptas cumplir con estos términos de servicio. El contenido del sitio es solo para uso personal y no comercial.</p>
+                        
+                        <h5 class="mt-4">2. Uso de Datos</h5>
+                        <p>Recopilamos información personal como nombre y correo electrónico para brindar nuestros servicios. No compartimos esta información con terceros sin tu consentimiento.</p>
+                        
+                        <h5 class="mt-4">3. Propiedad Intelectual</h5>
+                        <p>El contenido de TomaUNO, incluyendo textos, gráficos y logotipos, está protegido por derechos de autor y otras leyes de propiedad intelectual.</p>
+                        
+                        <h5 class="mt-4">4. Limitación de Responsabilidad</h5>
+                        <p>No nos hacemos responsables por la exactitud o disponibilidad de la información proporcionada. El uso del sitio es bajo tu propio riesgo.</p>
+                        
+                        <h5 class="mt-4">5. Cambios en los Términos</h5>
+                        <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor inmediatamente después de su publicación en el sitio.</p>
+                        
+                        <h5 class="mt-4">6. Política de Cookies</h5>
+                        <p>Utilizamos cookies para mejorar tu experiencia. Al usar nuestro sitio, aceptas el uso de cookies de acuerdo con nuestra política de privacidad.</p>
+                        
+                        <div class="alert alert-info mt-4">
+                            <small>Última actualización: 22 de noviembre de 2025</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             (function () {
