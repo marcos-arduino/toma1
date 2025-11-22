@@ -12,6 +12,8 @@ import os
 from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
+from crypto_utils import encrypt_token, decrypt_token
+import os
 
 app = Flask(__name__)
 
@@ -40,7 +42,9 @@ def get_client_ip():
 load_dotenv()
 
 # --- Configuración TMDB ---
-API_KEY = os.getenv("TMDB_API_KEY", "40de1255ef09a65984a1b8def1d8c3ce")
+# Hashing simétrico de la clave de la API
+ENCRYPTED_API_KEY = os.getenv('TMDB_API_KEY')
+API_KEY = decrypt_token(ENCRYPTED_API_KEY) if ENCRYPTED_API_KEY.startswith('gAAAA') else ENCRYPTED_API_KEY
 TMDB_URL = "https://api.themoviedb.org/3"
 
 
