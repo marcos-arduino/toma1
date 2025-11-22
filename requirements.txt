@@ -17,7 +17,7 @@ cryptography==41.0.4
 # websockets y tiempo real
 Flask-SocketIO==5.3.5
 python-socketio==5.9.0
-python-engineio==4.6.1
+python-engineio==4.7.0
 eventlet==0.33.3
 
 # api y cors
