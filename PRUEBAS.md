@@ -66,10 +66,13 @@ Verificar el manejo de múltiples usuarios realizando operaciones simultáneas.
 
 ## 🎥 Video Demostrativo
 
-**Duración**: 2-3 minutos
-
-**Secciones**:
-1. Inicio de sesión (30s)
-2. Navegación básica (30s)
-3. Prueba de concurrencia (30s)
-4. Verificación de seguridad (30s)
+1. Inicio de sesión (user)
+   [https://drive.google.com/file/d/1QUD__IS4JCFaUwjH-EfRTTBRRNN2EjPO/view?usp=sharing](https://drive.google.com/file/d/1QUD__IS4JCFaUwjH-EfRTTBRRNN2EjPO/view?usp=sharing)
+2. Inicio de sesión (admin)
+   [https://drive.google.com/file/d/1Pqfr-bovgO5JXPMXLPMzIJKvg2UxKv7T/view?usp=sharing](https://drive.google.com/file/d/1Pqfr-bovgO5JXPMXLPMzIJKvg2UxKv7T/view?usp=sharing)
+3. Navegación básica
+   [https://drive.google.com/file/d/1UF306l4uV4gMHJu5k_o4txWMcrpxIh_D/view?usp=sharing](https://drive.google.com/file/d/1UF306l4uV4gMHJu5k_o4txWMcrpxIh_D/view?usp=sharing)
+4. Prueba de concurrencia
+   [https://drive.google.com/file/d/11LXBZyCVPICQ0oWWW9SxTSBL50MLkBaS/view?usp=sharing](https://drive.google.com/file/d/11LXBZyCVPICQ0oWWW9SxTSBL50MLkBaS/view?usp=sharing)
+5. Verificación de seguridad
+   [https://drive.google.com/file/d/15PTWIcz9sqUvtCzjE8BdAMsV4UVbjzU1/view?usp=sharing](https://drive.google.com/file/d/15PTWIcz9sqUvtCzjE8BdAMsV4UVbjzU1/view?usp=sharing)
