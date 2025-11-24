@@ -1,91 +1,254 @@
 {% extends 'base.html' %}
-{% block title %}Admin{% endblock %}
+{% block title %}Admin - TomaUNO{% endblock %}
 {% block content %}
-<div class="mb-4">
-    <h1>Panel de administración</h1>
-    <p class="text-muted small">Desde aquí podés gestionar usuarios y revisar los logs de auditoría.</p>
-</div>
-
-<div id="admin-access-section" class="mb-4">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Acceso de administrador</h5>
-            <p class="card-text mb-3 small">Debes estar logueado como usuario administrador y además ingresar la clave de admin.</p>
-            <div class="mb-3">
-                <label for="adminKeyInput" class="form-label">Clave de admin</label>
-                <input type="password" id="adminKeyInput" class="form-control" placeholder="Ingresa la clave de admin" />
-            </div>
-            <div id="adminAccessMsg" class="small mb-2 text-danger"></div>
-            <button id="btnAdminAccess" class="btn btn-primary">Validar acceso</button>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-light mb-2">Panel de Administración</h1>
+            <p class="text-light-emphasis">Gestiona usuarios y revisa la actividad del sistema</p>
         </div>
     </div>
-</div>
 
-<div id="admin-content" class="d-none">
-    <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane" type="button" role="tab">Usuarios</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-pane" type="button" role="tab">Logs</button>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="users-pane" role="tabpanel" aria-labelledby="users-tab">
-            <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Usuarios registrados</span>
-                    <button id="btnReloadUsers" class="btn btn-sm btn-outline-secondary">Refrescar</button>
+    <div id="admin-access-section" class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-header bg-dark border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Acceso de Administrador</h5>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0 align-middle">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Admin</th>
-                                    <th>Activo</th>
-                                    <th>Registrado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody"></tbody>
-                        </table>
+                <div class="card-body">
+                    <p class="text-white-50 small mb-4">Ingresa la clave de administrador para acceder al panel de control.</p>
+                    <div class="mb-3">
+                        <label for="adminKeyInput" class="form-label">Clave de Administrador</label>
+                        <div class="input-group">
+                            <input type="password" id="adminKeyInput" class="form-control bg-dark text-light border-secondary" 
+                                   placeholder="Ingresa la clave de administrador" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="adminKeyInput">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="adminAccessMsg" class="small mb-3 text-danger"></div>
+                    <button id="btnAdminAccess" class="btn btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Validar Acceso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-content" class="d-none">
+        <div class="row">
+            <div class="col-12">
+                <ul class="nav nav-tabs nav-fill mb-4 border-0" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-light" id="users-tab" data-bs-toggle="tab" 
+                                data-bs-target="#users-pane" type="button" role="tab">
+                            <i class="bi bi-people-fill me-2"></i>Usuarios
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-light" id="logs-tab" data-bs-toggle="tab" 
+                                data-bs-target="#logs-pane" type="button" role="tab">
+                            <i class="bi bi-journal-text me-2"></i>Logs
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            <!-- Pestaña de Usuarios -->
+            <div class="tab-pane fade show active" id="users-pane" role="tabpanel" aria-labelledby="users-tab">
+                <div class="card bg-dark text-light border-secondary">
+                    <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-people me-2"></i>Usuarios Registrados</h5>
+                        <button id="btnReloadUsers" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-arrow-clockwise"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover table-borderless mb-0">
+                                <thead style="background-color: #2c3034; color: white;">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th class="text-center">Admin</th>
+                                        <th class="text-center">Estado</th>
+                                        <th>Registrado</th>
+                                        <th class="text-end pe-3">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="align-middle">
+                                    <!-- Datos cargados por JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-dark border-secondary text-muted small">
+                        <i class="bi bi-info-circle me-1"></i> Haz clic en un usuario para ver más opciones
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Logs -->
+            <div class="tab-pane fade" id="logs-pane" role="tabpanel" aria-labelledby="logs-tab">
+                <div class="card bg-dark text-light border-secondary">
+                    <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-journal-text me-2"></i>Logs</h5>
+                        <div>
+                            <button id="btnClearLogs" class="btn btn-sm btn-outline-danger me-2" title="Limpiar registros">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button id="btnReloadLogs" class="btn btn-sm btn-outline-light">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-dark table-hover table-borderless mb-0">
+                                <thead class="sticky-top" style="background-color: #2c3034; color: white;">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Severidad</th>
+                                        <th>Usuario</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTableBody" class="font-monospace small">
+                                    <!-- Datos cargados por JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-dark border-secondary text-muted small">
+                        <i class="bi bi-clock-history me-1"></i> Mostrando los registros más recientes
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="tab-pane fade" id="logs-pane" role="tabpanel" aria-labelledby="logs-tab">
-            <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Logs de auditoría recientes</span>
-                    <button id="btnReloadLogs" class="btn btn-sm btn-outline-secondary">Refrescar</button>
-                </div>
-                <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
-                    <table class="table table-sm mb-0 align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha</th>
-                                <th>Tipo</th>
-                                <th>Severidad</th>
-                                <th>Usuario</th>
-                                <th>Descripción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logsTableBody"></tbody>
-                    </table>
-                </div>
+<!-- Modal para confirmar acciones -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="confirmModalTitle">Confirmar acción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                ¿Estás seguro de que deseas realizar esta acción?
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    /* Estilos personalizados para el panel de administración */
+    .nav-tabs {
+        border-bottom: 1px solid #2c3034;
+    }
+    
+    .nav-tabs .nav-link {
+        color: #adb5bd;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        background: transparent;
+        border-color: #0d6efd;
+        font-weight: 500;
+    }
+    
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+        --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 0.75rem 1rem;
+        border-bottom-color: #2c3034;
+    }
+    
+    .table thead th {
+        border-bottom: 1px solid #2c3034;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+    
+    .btn-xs {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+    }
+    
+    .toggle-password {
+        cursor: pointer;
+    }
+    
+    .toggle-password:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+</style>
 {% endblock %}
+
 {% block scripts %}
 <script type="module" src="{{ url_for('static', filename='js/pages/admin.js') }}"></script>
+<script>
+    // Toggle para mostrar/ocultar contraseña
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle para mostrar/ocultar contraseña
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+        
+        // Inicializar tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
 {% endblock %}

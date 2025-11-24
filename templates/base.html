@@ -11,14 +11,18 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
         {% block extra_css %}{% endblock %}
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" id="favicon.ico" type="image/x-icon" />
+        <!-- Favicon para diferentes dispositivos -->
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="128x128" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
     </head>
     <body>
         <nav class="navbar">
             <div class="container-xl py-2">
-                <a class="navbar-brand navbar-titulo" href="{{url_for('home')}}">
-                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="50" height="50" class="d-inline-block align-text-top" />
-                    <span class="brand-text">TomaUNO</span>
+                <a class="navbar-brand navbar-titulo m-0 p-0 me-2" href="{{url_for('home')}}" style="line-height: 1;">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="80" class="d-inline-block" style="height: auto;" />
                 </a>
 
                 <form class="d-flex" role="search" onsubmit="return buscarRedirect(event)" id="searchForm">
@@ -88,7 +92,7 @@
                                     <input type="text" class="form-control" id="regNombre" maxlength="8" required 
                                            oninput="this.value = this.value.slice(0, 8)"
                                            title="El nombre no puede tener más de 8 caracteres" />
-                                    <div class="form-text text-muted">Máximo 8 caracteres</div>
+                                    <div class="form-text" style="color: #a0a0a0 !important;">Máximo 8 caracteres</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="regEmail" class="form-label">Correo electrónico</label>
