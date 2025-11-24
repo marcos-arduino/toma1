@@ -190,26 +190,47 @@
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
-            (function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 try {
-                    const socket = io();
+                    const socket = io({
+                        reconnection: true,
+                        reconnectionAttempts: 5,
+                        reconnectionDelay: 1000
+                    });
+                    
                     window.appSocket = socket;
                     
-                    socket.on("connect", function () {
-                        console.log("Conectado al servidor. Tu ID:", socket.id);
-                        socket.emit("ping", { ts: Date.now() });
+                    socket.on('connect', function() {
+                        console.log('Conectado al servidor Socket.IO con ID:', socket.id);
                     });
                     
-                    socket.on('user_count', function(count) {
+                    socket.io.on('reconnect', function() {
+                        console.log('Reconectado al servidor');
+                        socket.emit('get_user_count');
+                    });
+                    
+                    socket.on('online_count', function(data) {
+                        console.log('Usuarios en línea:', data.count);
                         const countElement = document.getElementById('user-count');
                         if (countElement) {
-                            countElement.textContent = count;
+                            countElement.textContent = data.count;
                         }
                     });
+
+                    socket.on('welcome', function(data) {
+                        console.log('Mensaje del servidor:', data.message);
+                        console.log('ID de conexión:', data.your_id);
+                        console.log('Total de clientes conectados:', data.total_clients);
+                    });
+                    
+                    socket.on('connect_error', function(error) {
+                        console.error('Error de conexión:', error);
+                    });
+                    
                 } catch (e) {
-                    console.error("Error al inicializar Socket.IO:", e);
+                    console.error('Error al inicializar Socket.IO:', e);
                 }
-            })();
+            });
 
             function buscarRedirect(e) {
                 e.preventDefault();
