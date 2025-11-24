@@ -85,8 +85,6 @@ def api_peliculas_categoria(categoria):
                 endpoint = "movie/popular"
             case "top_rated":
                 endpoint = "movie/top_rated"
-            case "upcoming":
-                endpoint = "movie/upcoming"
             case "now_playing":
                 endpoint = "movie/now_playing"
             case _:

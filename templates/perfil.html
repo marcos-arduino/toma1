@@ -12,7 +12,12 @@
                     <span class="muted">Reseñas:</span>
                     <div id="listaReviews"></div>
                 </div>
-                <div class="mb-1"><span class="muted">Películas favoritas:</span> <span id="numFavoritas"></span></div>
+                <div class="mb-1">
+                    <a href="{{ url_for('ver_peliculas', tipo='favoritas') }}" class="btn btn-success btn-sm">
+                        <i class="bi bi-heart-fill me-1"></i> Ver mis favoritas
+                        <span id="numFavoritas" class="badge bg-light text-dark ms-2">0</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
