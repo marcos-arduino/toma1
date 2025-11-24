@@ -8,8 +8,7 @@
     margin-right: calc(50% - 50vw);
     margin-bottom: 2rem;
     width: 100vw;
-    /* cover the container top padding under navbar */
-    margin-top: -1.5rem; /* matches .py-4 top padding from main */
+    margin-top: -1.5rem;
     padding-top: calc(4rem + 1.5rem);
     display: flex;
     align-items: center;
@@ -106,7 +105,6 @@
 }
 .more-link:hover { color: #dfe6ee; text-decoration: underline; }
 
-/* Prevent horizontal overflow on tiny screens */
 @media (max-width: 576px) {
   .index-hero {
     margin-left: 0;

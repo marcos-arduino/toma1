@@ -54,10 +54,6 @@
     </div>
 </section>
 
-<!-- con mantener los id alcanza, ejemplo: <span id="..."></span>, <hX id="titulo"></hX>. todo el resto se puede modificar libremente -->
-<!-- cada cada contenido va dirigido a esos ids, creo que no importa que tipo de etiqueta sea -->
-<!-- yo(ardui) sacaria los p strong , etc. lo haria de otra forma -->
-
 {% endblock %} {% block scripts %}
 <script>window.MOVIE_ID = "{{ movie_id }}";</script>
 <script type="module" src="{{ url_for('static', filename='js/pages/pelicula.js') }}"></script>

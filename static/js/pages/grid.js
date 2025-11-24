@@ -33,7 +33,6 @@ function crearCard(data) {
 async function cargarPeliculas() {
     const tipo = window.GRID_TIPO;
     try {
-        // cargar lista del usuario una sola vez
         if (userListIds === null) {
             try {
                 const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');

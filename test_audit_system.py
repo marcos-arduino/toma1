@@ -1,7 +1,3 @@
-"""
-Script de prueba para el sistema de auditoría
-Ejecutar después de iniciar el servidor Flask
-"""
 import requests
 import time
 import json
@@ -74,7 +70,6 @@ def test_create_review(user_id):
     print("\n✓ Debería haberse registrado un error de validación")
 
 def test_list_operations(user_id):
-    """Prueba operaciones de lista"""
     print_section("TEST: Operaciones de Lista")
     
     # Agregar película a lista
@@ -96,7 +91,6 @@ def test_list_operations(user_id):
     print("\n✓ Operaciones de lista completadas")
 
 def test_get_audit_logs():
-    """Obtiene y muestra logs de auditoría"""
     print_section("TEST: Consultar Logs de Auditoría")
     
     response = requests.get(f"{BASE_URL}/api/audit/logs?limit=20")
@@ -115,7 +109,6 @@ def test_get_audit_logs():
         print(f"Error: {response.json()}")
 
 def test_get_critical_alerts():
-    """Obtiene y muestra alertas críticas"""
     print_section("TEST: Consultar Alertas Críticas")
     
     response = requests.get(f"{BASE_URL}/api/audit/alerts?unresolved_only=true")
@@ -139,7 +132,6 @@ def test_get_critical_alerts():
         print(f"Error: {response.json()}")
 
 def test_get_statistics():
-    """Obtiene estadísticas de auditoría"""
     print_section("TEST: Estadísticas de Auditoría")
     
     response = requests.get(f"{BASE_URL}/api/audit/statistics?days=7")
@@ -167,7 +159,6 @@ def main():
     input("\nPresiona ENTER para continuar...")
     
     try:
-        # Verificar que el servidor está corriendo
         response = requests.get(f"{BASE_URL}/")
         print("\n✓ Servidor Flask está corriendo")
     except requests.exceptions.ConnectionError:
