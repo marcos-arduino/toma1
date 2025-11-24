@@ -7,36 +7,73 @@
     z-index: 1030;
 }
 
-/* Responsive navbar layout to keep user dropdown visible */
 .navbar .container-xl {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: nowrap; /* keep everything on one row */
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
 }
+
 .navbar .container-xl > form {
     flex: 1 1 auto;
-    min-width: 0; /* allow input shrink */
+    min-width: 50px;
+    max-width: 600px;
+    margin: 0 0.5rem;
+    display: flex;
+    justify-content: center;
 }
-/* Keep brand and user controls from stretching */
+
 .navbar .container-xl > .navbar-brand,
 .navbar .container-xl > .d-flex {
     flex: 0 0 auto;
-}
-/* also allow the right controls to shrink content if needed */
-.navbar .container-xl > .d-flex {
-    min-width: 0;
+    position: relative;
+    white-space: nowrap;
 }
 
-/* Compact spacing on small screens but keep single row */
+.navbar .container-xl > .d-flex {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+#user-menu .dropdown-toggle {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.navbar .btn {
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
     .navbar .container-xl {
         gap: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .navbar .btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.9rem;
+    }
+    
+    .navbar .form-control.buscar {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    #user-menu .dropdown-toggle {
+        max-width: 100px;
     }
 }
 
-/* Extra compact navbar controls for very small screens */
 @media (max-width: 640px) {
     .navbar .btn {
         padding: 0.3rem 0.55rem;
@@ -53,38 +90,116 @@
     }
 }
 
-/* Ultra-small screens: further constrain search to prevent overflow */
-@media (max-width: 380px) {
+@media (max-width: 480px) {
     .navbar .container-xl {
-        gap: 0.35rem;
+        gap: 0.15rem;
+        padding: 0.15rem;
     }
+    
     .navbar .container-xl > form {
-        flex: 1 1 100px;
-        max-width: 50vw;
+        flex: 1 1 30px;
+        min-width: 30px;
+        margin: 0 0.15rem;
     }
+    
+    .navbar .btn {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.7rem;
+    }
+    
+    .navbar-brand .brand-text {
+        display: none;
+    }
+    
+    .navbar-brand img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
     .navbar .form-control.buscar {
-        padding-top: 0.3rem;
-        padding-bottom: 0.3rem;
-        font-size: 0.9rem;
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
         min-width: 0;
+        width: 100%;
     }
-    /* override Bootstrap margin utility to save space */
+    
+    /* Ajustes para pantallas pequeñas */
+    @media (max-width: 300px) {
+        .navbar .container-xl {
+            gap: 0.2rem;
+            padding: 0.2rem;
+            flex-wrap: nowrap;
+        }
+        
+        .navbar .btn {
+            padding: 0.1rem 0.3rem;
+            font-size: 0.7rem;
+        }
+        
+        .navbar-brand img {
+            width: 24px !important;
+            height: 24px !important;
+        }
+        
+        .navbar .form-control.buscar {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.7rem;
+        }
+    }
+    
+    /* Ajustes para pantallas muy pequeñas */
+    @media (max-width: 260px) {
+        .navbar .container-xl {
+            gap: 0.15rem;
+            padding: 0.15rem;
+        }
+        
+        .navbar .btn {
+            padding: 0.1rem 0.2rem;
+            font-size: 0.65rem;
+        }
+        
+        .navbar-brand img {
+            width: 22px !important;
+            height: 22px !important;
+        }
+        
+        #user-menu .dropdown-toggle {
+            max-width: 70px;
+            font-size: 0.65rem;
+        }
+        
+        .navbar .form-control.buscar {
+            padding: 0.1rem 0.2rem;
+            font-size: 0.65rem;
+        }
+    }
+    
     .navbar .form-control.me-2 {
-        margin-right: 0.25rem !important;
+        margin-right: 0.2rem !important;
     }
-    /* shrink brand logo further */
+    
     .navbar .container-xl > .navbar-brand img {
         width: 32px;
         height: 32px;
     }
-    /* if needed, reduce button padding more */
+    
     .navbar .btn {
-        padding: 0.28rem 0.5rem;
-        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    #user-menu .dropdown-toggle {
+        max-width: 70px;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.6rem;
+    }
+    
+    .navbar .dropdown-toggle::after {
+        display: none;
     }
 }
 
-/* Global box-sizing to avoid cumulative width issues */
 *,
 *::before,
 *::after {
@@ -134,11 +249,10 @@
 }
 
 .buscar {
-    width: 100%; /* fill available space inside flexing form */
+    width: 100%;
     border-radius: 20px;
 }
 
-/* Make all Bootstrap buttons consistently rounded like the search bar */
 .btn {
     border-radius: 20px;
 }
@@ -161,7 +275,6 @@
     white-space: nowrap;
 }
 
-/* Hide brand text on very small screens, keep only the logo */
 @media (max-width: 640px) {
     .navbar-titulo .brand-text {
         display: none;
@@ -175,7 +288,6 @@
     }
 }
 
-/* Global dark theme */
 body {
     background-color: #0b0f14;
     color: #9ab;
@@ -190,7 +302,6 @@ h5 {
     color: #dfe6ee;
 }
 
-/* Poster grid helpers */
 .poster-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -234,7 +345,6 @@ h5 {
     filter: saturate(1);
 }
 
-/* square add-to-list button in top-right */
 .btn-add {
     position: absolute;
     top: 8px;
@@ -299,7 +409,6 @@ h5 {
     border-radius: 10px;
 }
 
-/* Modal sizing and spacing */
 .modal .modal-dialog {
     max-width: 520px;
 }
@@ -324,7 +433,6 @@ h5 {
     opacity: 1;
 }
 
-/* Inputs dentro del modal: coherentes con tema oscuro */
 .modal .form-label {
     color: #dfe6ee;
 }
@@ -344,7 +452,6 @@ h5 {
     color: #dfe6ee;
 }
 
-/* Extra spacing in login modal between password and submit */
 #formLogin .mb-3:last-of-type {
     margin-bottom: 1rem;
 }
@@ -352,12 +459,10 @@ h5 {
     margin-bottom: 1rem;
 }
 
-/* Backdrop más sutil y acorde al tema */
 .modal-backdrop.show {
     opacity: 0.75;
 }
 
-/* Primary button styled with site accent */
 .btn-primary {
     background-color: #00e054;
     border-color: #00e054;
@@ -373,7 +478,6 @@ h5 {
     box-shadow: 0 0 0 0.2rem rgba(0, 224, 84, 0.25);
 }
 
-/* Success button aligned with accent (e.g., "Registrarse") */
 .btn-success {
     background-color: #00e054;
     border-color: #00e054;
@@ -389,7 +493,6 @@ h5 {
     box-shadow: 0 0 0 0.2rem rgba(0, 224, 84, 0.25);
 }
 
-/* Links dentro del modal en color acorde */
 .modal .btn-link.text-info {
     color: #63e6a5;
 }
@@ -405,7 +508,6 @@ h5 {
     color: #00e054;
 }
 
-/* Footer */
 .site-footer {
     background-color: #14181c;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -420,16 +522,15 @@ h5 {
 .site-footer .footer-links a {
     color: #9ab;
     text-decoration: none;
-    overflow-wrap: anywhere; /* allow breaking long words like emails/URLs */
-    word-break: break-word;  /* fallback */
-    hyphens: auto;           /* hyphenation when available */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
 }
 .site-footer .footer-links a:hover {
     color: #dfe6ee;
     text-decoration: underline;
 }
 
-/* Ensure footer container can wrap content on small screens */
 .site-footer .container-xl {
     display: flex;
     flex-direction: column;
@@ -438,5 +539,7 @@ h5 {
 .site-footer .row { min-width: 0; }
 .site-footer .footer-links { min-width: 0; }
 @media (min-width: 768px) {
-  .site-footer .container-xl { flex-direction: column; }
+  .site-footer .container-xl { 
+    flex-direction: column; 
+  }
 }
