@@ -132,7 +132,7 @@
 @media (max-width: 480px) {
     .navbar .container-xl {
         gap: 0.15rem;
-        padding: 0.15rem;
+        padding: 0.3rem;
     }
     
     .navbar .container-xl > form {
@@ -150,11 +150,6 @@
         display: none;
     }
     
-    .navbar-brand img {
-        width: 30px !important;
-        height: 30px !important;
-    }
-    
     .navbar .form-control.buscar {
         padding: 0.2rem 0.4rem;
         font-size: 0.75rem;
@@ -162,7 +157,7 @@
         width: 100%;
     }
     
-    @media (max-width: 300px) {
+    @media (max-width: 330px) {
         .navbar .container-xl {
             gap: 0.2rem;
             padding: 0.2rem;
@@ -175,8 +170,7 @@
         }
         
         .navbar-brand img {
-            width: 24px !important;
-            height: 24px !important;
+            width: 60px !important;
         }
         
         .navbar .form-control.buscar {
@@ -185,7 +179,7 @@
         }
     }
     
-    @media (max-width: 260px) {
+    @media (max-width: 290px) {
         .navbar .container-xl {
             gap: 0.15rem;
             padding: 0.15rem;
@@ -197,8 +191,7 @@
         }
         
         .navbar-brand img {
-            width: 22px !important;
-            height: 22px !important;
+            width: 25px !important;
         }
         
         #user-menu .dropdown-toggle {
@@ -218,7 +211,6 @@
     
     .navbar .container-xl > .navbar-brand img {
         width: 32px;
-        height: 32px;
     }
     
     .navbar .btn {
@@ -321,7 +313,6 @@
     }
     .navbar .container-xl > .navbar-brand img {
         width: 40px;
-        height: 40px;
     }
 }
 
